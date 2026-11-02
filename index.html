@@ -23,13 +23,27 @@
   .badge { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 999px; background: #b03a2e; color: #fff; vertical-align: middle; margin-left: 6px; }
   .badge.gray { background: #888; }
   .note { margin-top: 28px; font-size: .88rem; color: #777; }
+  .sub a, .note a { color: inherit; text-decoration: underline; }
   .part { margin-top: 14px; font-size: .85rem; color: #b03a2e; font-weight: 700; }
+  #map2d { height: 440px; border-radius: 10px; border: 1px solid rgba(128,128,128,.35); margin: 6px 0 4px; z-index: 0; }
+  .pin { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 5px rgba(0,0,0,.45); }
+  .pin.castle { background: #d9a441; }
+  .pin.shrine { background: #c05621; }
+  .pop h3 { margin: 0 0 2px; font-size: 1rem; }
+  .pop .kind { display: inline-block; font-size: .72rem; padding: 0 7px; border-radius: 999px; background: #b03a2e; color: #fff; margin-left: 5px; vertical-align: middle; }
+  .pop p { margin: 6px 0; font-size: .86rem; line-height: 1.65; }
+  .pop .chap { font-size: .8rem; color: #666; line-height: 1.7; }
 </style>
+<link rel="stylesheet" href="./vendor/leaflet/leaflet.css">
 </head>
 <body>
 <main>
   <h1>『伊達の国を歩く（仮）』下書き保存の一覧</h1>
   <div class="sub">各タイトルを押すと、その章の原稿（GitHub上のMarkdown）が開きます。下書きのコピーは非公開リポジトリ zenn-articles に保存中。2026年11月3日時点</div>
+
+  <h2>地図 ― 登場する城と神社仏閣</h2>
+  <div id="map2d"></div>
+  <p class="note" style="margin-top:6px">ピンを押すと、その場所の説明と、本の対応する章への案内が出ます。地図は章ごとに、登場する場所から順に増やしていきます。各場所の3D地図は<a href="./map-list.html">3Dマップ一覧</a>からも開けます。</p>
 
   <h2>保存済み ― 本文の下書きがあるもの（20点）</h2>
   <div class="part">第1部 福島</div>
@@ -68,6 +82,11 @@
     <li><span class="name"><a href="https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch17-ohashi-shigezane.md">第17章 大橋のほとり ― 成実の家</a></span><span class="meta">約1,700字</span></li>
   </ul>
 
+  <h2>付属コンテンツ ― 3Dマップ</h2>
+  <ul>
+    <li><span class="name"><a href="./map-list.html">3Dマップ一覧 ― 城と神社仏閣</a></span><span class="meta">付属・試作</span></li>
+  </ul>
+
   <h2 class="todo">未保存 ― まだ雛形だけのもの</h2>
   <ul>
     <li class="dim"><span class="name"><a href="https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch00-intro.md">序章 仙台という範囲</a></span><span class="meta">雛形</span></li>
@@ -85,7 +104,33 @@
     <li class="dim"><span class="name"><a href="https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-col-uwajima.md">コラム 宇和島</a></span><span class="meta">雛形</span></li>
   </ul>
 
-  <p class="note">原稿の正本は sengoku-life-sim リポジトリの docs にあり、リンク先はそちらです。Zenn 側には非公開の下書きコピーを保存しています。本文ができた章から、こちらへも順次追加します。文字数はファイル全体のおおよその字数です。</p>
+  <p class="note">原稿の正本は sengoku-life-sim リポジトリの docs にあり、リンク先はそちらです。Zenn 側には非公開の下書きコピーを保存しています。本文ができた章から、こちらへも順次追加します。文字数は実文字数（100字単位に四捨五入）です。付属の3Dマップは<a href="./map-list.html">3Dマップ一覧</a>から開けます。</p>
 </main>
+<script src="./vendor/leaflet/leaflet.js"></script>
+<script src="./places.js"></script>
+<script>
+(function(){
+  if (!window.L || !window.PLACES) return;
+  var map = L.map("map2d");
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors", maxZoom: 18 }).addTo(map);
+  var pts = [];
+  window.PLACES.forEach(function(p){
+    var icon = L.divIcon({ className: "", html: '<div class="pin ' + p.kind + '" style="width:16px;height:16px"></div>', iconSize: [16,16], iconAnchor: [8,8] });
+    var m = L.marker([p.lat, p.lon], { icon: icon }).addTo(map);
+    var chap = "";
+    if (p.chapters && p.chapters.length) {
+      chap = "本では: " + p.chapters.map(function(c){ return '<a href="' + c.url + '" target="_blank" rel="noopener">' + c.label + '</a>'; }).join(" ／ ") + " に出てきます。";
+    } else {
+      chap = "本ではまだ取り上げていません（この地図が先行しています）。";
+    }
+    var html = '<div class="pop"><h3>' + p.name + '<span class="kind">' + (p.kind === "castle" ? "城" : "神社仏閣") + '</span></h3>'
+      + '<p>' + p.desc + '</p>'
+      + '<div class="chap">' + chap + '<br><a href="./map.html?scene=' + p.scene + '&focus=' + encodeURIComponent(p.name) + '">3Dマップで見る（' + p.sceneTitle + '）</a></div></div>';
+    m.bindPopup(html, { maxWidth: 320 });
+    pts.push([p.lat, p.lon]);
+  });
+  if (pts.length) map.fitBounds(pts, { padding: [30, 30] });
+})();
+</script>
 </body>
 </html>
