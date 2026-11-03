@@ -186,7 +186,10 @@
       .then(function () { return loadScript('places.js'); })
       .then(function () {
         if (!window.L || !window.PLACES) return;
-        map = L.map('map2d');
+        map = L.map('map2d', { zoomControl: false });
+        // Zoom buttons at bottom-left: the default top-left overlaps the
+        // place popups (user's report, 2026-11-03).
+        L.control.zoom({ position: 'bottomleft' }).addTo(map);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 }).addTo(map);
         var pts = [];
         window.PLACES.forEach(function (p) {
