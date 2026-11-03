@@ -1,4 +1,16 @@
 {
-  "sites": {},
+  "sites": {
+    "date": {
+      "name": "Walking the Land of Date (working title)",
+      "short_name": "Land of Date",
+      "kind_label": "Book draft",
+      "hero_title": "Walking the Land of Date (working title)",
+      "description": "Draft chapters of a book tracing the Date clan's moves — from Yanagawa and Yonezawa through Aizu and Iwadeyama to Sendai — readable here as articles, generated straight from the Markdown manuscripts.",
+      "subtitle": "Draft preview site",
+      "hero_note": "Markdown CMS · GitHub updates · GitHub Pages",
+      "about": "Drafts of a book that follows the Date clan's relocations through the towns and place names they left behind. Chapters appear here as articles as they are written.",
+      "source_hash": "3179101aa8c87a4a0e6f70c83cf9b0c95fd7c7b9d49c7003cb1aa76e05d0172a"
+    }
+  },
   "posts": {}
 }
