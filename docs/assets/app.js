@@ -1,167 +1,281 @@
-/* DESIGN.md-based page templates. Shared data helpers keep content independent of layout. */
-window.MarkdownCMSTemplates=({h,loc,tr,date,routeLink,filters,tile})=>{
-  const aboutLink=()=>`<a class="tpl-link" href="${h(routeLink('about/sample'))}">${h(tr('about'))} ↗</a>`;
-  const homeLink=()=>`<a class="tpl-link" href="${h(routeLink('sample'))}">← ${h(tr('back'))}</a>`;
-  const image=(src,alt='',classes='')=>`<img class="${classes}" src="${h(src)}" alt="${h(alt)}">`;
-  const heading=s=>`<span class="tpl-eyebrow">${h(s.eyebrow)}</span><h1>${h(s.hero_title)}</h1><p class="tpl-description">${h(s.description)}</p>`;
-  const postLink=it=>routeLink(`post/sample/${it.slug}`);
-  const meta=it=>`<span class="tpl-eyebrow">${date(it.date)} / ${h(it.category)}</span>`;
-  const articleText=it=>`<div class="prose">${it.html}</div>`;
-  const cards=entries=>`<div class="grid" data-grid>${entries.map(tile).join('')}</div><p class="empty" data-empty hidden>${h(tr('noMatches'))}</p>`;
-  const flightBoard=text=>`<span class="tpl-board" role="img" aria-label="${h(text)}">${text.split(' ').map(word=>`<span class="tpl-board-word" aria-hidden="true">${[...word].map(letter=>`<span class="tpl-board-letter" data-letter="${h(letter)}">${h(letter)}</span>`).join('')}</span>`).join('')}</span>`;
-  const flightMeta=it=>`<div class="tpl-flight-meta"><span><small>PUBLISHED</small><time datetime="${h(it.date)}">${h(it.date)}</time></span><span><small>CATEGORY</small>${h(it.category)}</span></div>`;
-  function rows(entries,numbered=false){return `<div class="tpl-rows" data-grid>${entries.map((raw,index)=>{const it=loc(raw);return `<article class="tpl-row" data-card data-site="sample" data-category="${h(it.category)}">${numbered?`<span class="tpl-number">${String(index+1).padStart(2,'0')}</span>`:''}<div>${numbered?flightMeta(it):meta(it)}<h3><a href="${h(postLink(it))}">${h(it.title)}</a></h3><p>${h(it.summary)}</p><a class="tpl-link" href="${h(postLink(it))}">${h(tr('read'))}</a></div><a href="${h(postLink(it))}">${image(it.cover.src,it.cover.alt)}</a></article>`}).join('')}</div><p class="empty" data-empty hidden>${h(tr('noMatches'))}</p>`}
-  const page=(id,kind,body)=>`<main class="tpl tpl-${id} tpl-${kind}" data-template="${id}" data-page="${kind}">${body}</main>`;
-  const aboutText=s=>`<p class="tpl-description">${h(s.description)}</p><p>${h(s.about)}</p>`;
-  return {
-    apple:{
-      home(data){const s=loc(data.site);return page('apple','home',`<section class="tpl-gallery-hero container"><div>${heading(s)}${aboutLink()}</div>${image(data.site.hero_image_src,'','tpl-gallery-photo')}</section><section class="section container"><div class="tpl-section-heading"><h2>${h(tr('news'))}</h2><span>${data.entries.length} ${h(tr('items'))}</span></div>${filters(data.entries,'site')}${cards(data.entries)}</section>`)},
-      detail(raw){const it=loc(raw);return page('apple','detail',`<header class="tpl-gallery-title container">${homeLink()}${meta(it)}<h1>${h(it.title)}</h1><p>${h(it.summary)}</p></header><div class="container">${image(raw.cover.src,raw.cover.alt,'tpl-wide-cover')}</div><article class="tpl-reading">${articleText(it)}${homeLink()}</article>`)},
-      about(data){const s=loc(data.site);return page('apple','about',`<section class="tpl-gallery-hero container"><div><span class="tpl-eyebrow">ABOUT</span><h1>${h(s.name)}</h1>${aboutText(s)}${homeLink()}</div>${image(data.site.hero_image_src,'','tpl-gallery-photo')}</section>`)},
-    },
-    notion:{
-      home(data){const s=loc(data.site);return page('notion','home',`<div class="tpl-notebook container"><aside class="tpl-notebook-nav"><span class="tpl-notebook-mark" aria-hidden="true">M↓</span><strong>${h(s.short_name)}</strong><p>${h(s.subtitle)}</p>${aboutLink()}</aside><div><header class="tpl-notebook-title">${heading(s)}<span class="tpl-note-label">${h(s.hero_note)}</span></header><section><h2>${h(tr('news'))}</h2>${filters(data.entries,'site')}${cards(data.entries)}</section></div></div>`)},
-      detail(raw,data){const it=loc(raw),s=loc(data.site);return page('notion','detail',`<div class="tpl-notebook container"><aside class="tpl-notebook-nav">${homeLink()}<strong>${h(s.short_name)}</strong>${meta(it)}${aboutLink()}</aside><article><header class="tpl-notebook-title"><span class="tpl-note-label">${h(it.category)}</span><h1>${h(it.title)}</h1><p>${h(it.summary)}</p></header>${image(raw.cover.src,raw.cover.alt,'tpl-wide-cover')}${articleText(it)}${homeLink()}</article></div>`)},
-      about(data){const s=loc(data.site);return page('notion','about',`<div class="tpl-notebook container"><aside class="tpl-notebook-nav">${homeLink()}<span class="tpl-notebook-mark" aria-hidden="true">M↓</span></aside><article class="tpl-notebook-title"><span class="tpl-note-label">ABOUT</span><h1>${h(s.name)}</h1>${aboutText(s)}</article></div>`)},
-    },
-    dala:{
-      home(data){const s=loc(data.site);return page('dala','home',`<header class="tpl-dark-stage container"><div>${heading(s)}${aboutLink()}</div><div class="tpl-orbit" aria-hidden="true"><span></span><span></span><span></span></div></header><section class="section container"><div class="tpl-section-heading"><h2>${h(tr('news'))}</h2><span>${data.entries.length} ${h(tr('items'))}</span></div>${filters(data.entries,'site')}${rows(data.entries)}</section>`)},
-      detail(raw){const it=loc(raw);return page('dala','detail',`<div class="tpl-dark-article container"><header>${homeLink()}${meta(it)}<h1>${h(it.title)}</h1><p class="tpl-description">${h(it.summary)}</p></header><article>${image(raw.cover.src,raw.cover.alt,'tpl-wide-cover')}${articleText(it)}${homeLink()}</article></div>`)},
-      about(data){const s=loc(data.site);return page('dala','about',`<section class="tpl-dark-article container"><header><span class="tpl-eyebrow">ABOUT</span><h1>${h(s.name)}</h1>${homeLink()}</header><article>${aboutText(s)}<div class="tpl-orbit" aria-hidden="true"><span></span><span></span><span></span></div></article></section>`)},
-    },
-    dope:{
-      home(data){const s=loc(data.site),latest=loc(data.entries[0]);return page('dope','home',`<section class="tpl-flight-hero container"><header>${heading(s)}${aboutLink()}</header>${latest?`<aside class="tpl-boarding"><span class="tpl-eyebrow">LATEST ENTRY / 01</span><span class="tpl-flight-rule">MARKDOWN → WEB</span><h2>${h(latest.title)}</h2><p>${h(latest.summary)}</p><a class="tpl-link" href="${h(postLink(latest))}">${h(tr('read'))}</a><div class="tpl-barcode" aria-hidden="true"></div></aside>`:''}</section><section class="section container"><div class="tpl-section-heading"><h2 class="tpl-board-heading">${flightBoard("NEWS JOURNAL")}</h2><span>${data.entries.length} ${h(tr('items'))}</span></div>${filters(data.entries,'site')}${rows(data.entries,true)}</section>`)},
-      detail(raw){const it=loc(raw);return page('dope','detail',`<header class="tpl-flight-title container">${homeLink()}${meta(it)}<h1>${h(it.title)}</h1><p class="tpl-description">${h(it.summary)}</p><div class="tpl-flight-rule">${flightBoard("JOURNAL")}</div></header><div class="container">${image(raw.cover.src,raw.cover.alt,'tpl-wide-cover')}</div><article class="tpl-reading">${articleText(it)}${homeLink()}</article>`)},
-      about(data){const s=loc(data.site);return page('dope','about',`<section class="tpl-flight-hero container"><header><span class="tpl-eyebrow">ABOUT / MARKDOWN CMS</span><h1>${h(s.name)}</h1>${homeLink()}</header><article class="tpl-boarding"><div class="tpl-flight-rule">WRITE → PUBLISH</div>${aboutText(s)}<div class="tpl-barcode" aria-hidden="true"></div></article></section>`)},
-    },
-  };
-};
+// date-no-kuni: frontend is fully custom (assets/app.js). No shared templates.
 
-(()=>{
+/* date-no-kuni custom frontend:
+   Left = article list, click = article shows in the right panel.
+   Data comes from the Markdown CMS build (data/sites/date.json + data/posts/date/*.json). */
+(function () {
   'use strict';
-  const app=document.querySelector('#app'); if(!app)return;
-  const preview=app.dataset.preview==='true';
-  const snapshot=preview?JSON.parse(document.getElementById('preview-data').textContent):null;
-  const root=preview&&document.baseURI==='about:blank'?new URL('https://offline-preview.invalid/'):new URL(app.dataset.root||'./',document.baseURI);
-  const standalone=app.dataset.mode==='site';
-  const ownSite=app.dataset.siteId||'bakery';
-  const portalUrl=app.dataset.portalUrl||'';
-  let discoveredSites=[];
-  const brands={portal:{ja:'まちのつながり',en:'Community Network'},sample:{ja:'markdownCMSサンプルサイト',en:'markdownCMS Sample Site'},bakery:{ja:'haru no tane',en:'haru no tane'},town:{ja:'みどり野町',en:'Midorino Town'},fruit:{ja:'果実日和',en:'Kajitsu Biyori'},gourmet:{ja:'山形グルメ案内',en:'Yamagata Food Guide'}};
-  // Custom vector marks in the visual mockups. Shared by JA and EN headings.
-  const logos={
-    sample:`<svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="5" y="9" width="54" height="46" rx="10" stroke="currentColor" stroke-width="3"/><path d="M15 42V23l9 10 9-10v19m14-12v12m-5-5 5 5 5-5" stroke="currentColor" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></svg>`,
-    bakery:`<svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M15 58C30 43 37 25 39 7" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/><path d="M37 15C28 12 26 6 26 3c7 0 12 5 11 12ZM39 15c8-4 11-10 11-14-8 2-12 7-11 14ZM34 25c-10-2-14-8-14-13 10 1 15 7 14 13ZM36 24c9-4 14-10 15-17-9 3-15 10-15 17ZM29 35c-9-1-15-6-17-13 11 2 16 8 17 13ZM31 34c9-2 16-9 19-16-12 3-17 9-19 16ZM23 45C13 44 8 40 5 33c10 1 17 6 18 12ZM25 44c8-2 14-7 17-14-10 2-16 7-17 14Z" fill="currentColor" fill-opacity=".90"/></svg>`,
-    town:`<svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M55 7C26 6 9 18 9 38c0 13 8 19 18 18 21-2 28-24 28-49Z" fill="currentColor"/><path d="M12 56c9-18 21-29 38-41M25 41l-3-14M33 34l13 1" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 57l8-6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`,
-    fruit:`<svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M30 17c-1-6 2-11 6-14" stroke="#704625" stroke-width="3" stroke-linecap="round"/><path d="M31 17C21 9 12 10 8 14c6 9 15 11 23 3Z" fill="#679451"/><path d="M34 13C39 5 48 5 54 8c-4 9-11 12-20 5Z" fill="#466f40"/><circle cx="32" cy="36" r="21" fill="currentColor"/><path d="M15 30c2-9 8-14 15-15" stroke="#fff4cf" stroke-opacity=".85" stroke-width="4" stroke-linecap="round"/><path d="M39 49c4-2 8-5 10-9" stroke="#b84d1a" stroke-opacity=".55" stroke-width="2.3" stroke-linecap="round"/><circle cx="25" cy="23" r="2.1" fill="#fff6e2"/></svg>`,
-    gourmet:`<svg viewBox="0 0 74 64" fill="none" aria-hidden="true"><path d="M4 43 27 13 41 33 49 24 70 45" stroke="currentColor" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/><path d="m19 24 8-11 9 13-9-4-8 2ZM45 31l4-7 8 11-8-3-4-1Z" fill="currentColor"/><path d="M10 49c10 4 17 5 26 1 9-4 19-3 27 0M18 57c11 2 18-3 27-4 7-1 11 0 17 2" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/></svg>`,
-    portal:`<svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M31 17v30M18 25l13 8 15-12M18 44l13-11 15 10" stroke="currentColor" stroke-opacity=".65" stroke-width="3.4" stroke-linecap="round"/><circle cx="31" cy="33" r="9" fill="currentColor"/><circle cx="31" cy="11" r="7" fill="currentColor"/><circle cx="49" cy="18" r="7" fill="currentColor"/><circle cx="51" cy="47" r="7" fill="currentColor"/><circle cx="13" cy="23" r="7" fill="currentColor"/><circle cx="13" cy="48" r="7" fill="currentColor"/><circle cx="31" cy="55" r="5" fill="currentColor"/><circle cx="31" cy="33" r="3.5" fill="#fff"/></svg>`
-  };
-  const words={
-    ja:{portal:'統合',sample:'サンプル',bakery:'パン屋',town:'みどり野町',fruit:'フルーツ',gourmet:'山形グルメ',brandTag:'統合ポータル',cart:'カート',about:'サイトについて',siteOpen:'サイトを見る →',back:'一覧へ戻る',items:'件',all:'すべて',townNews:'町のお知らせ',searchAll:'すべてのサイトの記事を検索…',searchSite:'記事や商品を検索…',latest:'みんなの新着情報',discover:'それぞれのサイトへ',articles:'記事・商品',news:'お知らせと日々のこと',newsTown:'町からのお知らせ',newsFruit:'季節の果物を選ぶ',newsGourmet:'山形のおいしい読みもの',read:'記事を読む ↗',tax:'税込・サンプル',add:'カートに追加',added:'追加しました ✓',others:'ほかのサイトもチェック',recommended:'ほかのサイトからのおすすめ',aboutTitle:'について',fictitious:'※ 登場する店舗・自治体・商品・価格・イベントはデモ用の架空情報です。',foot:'Markdown → JSON → 複数サイトを結ぶ静的CMSのデモ',localInfo:'各サイトの記事データを共通JSONで表示しています。',demoShop:'通販機能のデモです。実際の販売・注文・決済はできません。',demoPurchase:'デモ用の商品です。決済・注文受付・配送は行いません。',demoCart:'ショッピングカート',demoOrder:'実際の注文や決済は行われません。画面での試用のみです。',demoFees:'送料・税計算・支払機能は実装していません。価格は架空です。',emptyCart:'カートは空です。果物を選んで追加してください。',clear:'カートを空にする',subtotal:'小計',backToShop:'商品一覧に戻る',noMatches:'条件に合う記事はありません。',error:'表示できませんでした',returnPortal:'ポータルへ戻る',serviceTitle:'暮らしの手続き',services:['暮らしの手続き','子育て・福祉','交通・アクセス','公園・観光','催し・イベント','施設のご案内'],stock:'デモ在庫あり',noteAbout:'これは独立した静的Webサイトです。投稿のMarkdownをGitHub ActionsでJSONに変換し、共通仕様で統合ポータルにも表示できます。',portalTitle:'この町の、今日と\nおいしい発見。',portalDescription:'架空の町のお知らせ、パン屋さんの便り、旬のフルーツ、山形グルメ。',portalIntro:'4つの独立サイト × 統合ポータル',marketSubtitle:'季節のパンや小さな町の便りを見つけましょう。',dateLocale:'ja-JP'},
-    en:{portal:'Portal',sample:'Sample',bakery:'Bakery',town:'Midorino Town',fruit:'Fruit Shop',gourmet:'Yamagata Food',brandTag:'Community portal',cart:'Cart',about:'About this site',siteOpen:'Visit site →',back:'Back to articles',items:'entries',all:'All',townNews:'Town updates',searchAll:'Search all sites…',searchSite:'Search articles and products…',latest:'Latest from our network',discover:'Explore our sites',articles:'articles & products',news:'News & Journal',newsTown:'Town announcements',newsFruit:'Seasonal fruits',newsGourmet:'Discover Yamagata food',read:'Read article ↗',tax:'Sample · tax included',add:'Add to cart',added:'Added ✓',others:'Explore other sites',recommended:'Recommended from other sites',aboutTitle:'— About',fictitious:'All businesses, municipalities, products, prices and events are fictional demo data.',foot:'A static multi-site CMS powered by Markdown and JSON',localInfo:'Different sites share a common JSON content format.',demoShop:'This is a demo store. No real sales, orders or payments.',demoPurchase:'Demo product only. No real payment, order or shipping.',demoCart:'Shopping cart',demoOrder:'This is a demonstration. No actual orders or payments take place.',demoFees:'Shipping and payment are not implemented. Prices are fictional.',emptyCart:'Your cart is empty. Add some fruit to get started.',clear:'Empty cart',subtotal:'Subtotal',backToShop:'Back to products',noMatches:'No matching articles found.',error:'Unable to display content',returnPortal:'Back to portal',serviceTitle:'Town services',services:['Resident services','Childcare & welfare','Transportation','Parks & sightseeing','Events & activities','Public facilities'],stock:'Demo stock available',noteAbout:'Each site is a standalone static website. GitHub Actions converts Markdown to JSON, which is also included in the shared portal.',portalTitle:'What’s new in town,\nand what tastes good.',portalDescription:'Town news, bakery stories, seasonal fruit and a Yamagata food guide.',portalIntro:'4 independent sites × 1 unified portal',marketSubtitle:'Discover seasonal bread and local stories.',dateLocale:'en-US'}
-  };
-  const getLang=()=>{try{return localStorage.getItem('community-language')==='en'?'en':'ja'}catch{return 'ja'}};
-  let lang=getLang();
-  const tr=k=>words[lang][k]??k;
-  const loc=o=>o&&typeof o==='object'?{...o,...(o.i18n?.[lang]||{})}:o;
-  const h=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const tt=o=>h(o.title)+(o.subtitle?'<br><span class="tsub">'+h(o.subtitle)+'</span>':'');
-  const date=s=>{const [y,m,d]=String(s).split('-').map(Number);return lang==='ja'?`${y}年${m}月${d}日`:`${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]||''} ${d}, ${y}`};
-  const yen=v=>lang==='ja'?Number(v).toLocaleString('ja-JP')+'円':'¥'+Number(v).toLocaleString('en-US');
-  const routeLink=r=>{
-    if(standalone){
-      if(r==='portal')return portalUrl || '#/'+ownSite;
-      return '#/'+r;
-    }
-    if(preview)return '#/'+r;
-    const head=r.split('/')[0];
-    const site=['bakery','town','fruit','gourmet'].includes(head)?head:r.startsWith('post/')?r.split('/')[1]:r.startsWith('about/')?r.split('/')[1]:r==='cart'?'fruit':'portal';
-    return new URL((site==='portal'?'':site+'/')+'#/'+r,root).href;
-  };
-  const routeNow=()=>{let hash='';try{hash=decodeURIComponent(location.hash.replace(/^#\/?/,''))}catch{}return hash||(app.dataset.default||'portal')};
-  const state={category:'all',query:'',cart:{}};
-  try{state.cart=JSON.parse(localStorage.getItem('demo-fruit-cart')||'{}')||{}}catch{}
-  const saveCart=()=>{try{localStorage.setItem('demo-fruit-cart',JSON.stringify(state.cart))}catch{}};
-  const cartCount=()=>Object.values(state.cart).reduce((n,x)=>n+Number(x),0);
-  async function getJSON(path){const resp=await fetch(new URL(path,root));if(!resp.ok)throw Error(`HTTP ${resp.status}`);return resp.json()}
-  const memo={};
-  async function portal(){return memo.portal??=preview?Promise.resolve(snapshot.portal):getJSON('data/portal.json')}
-  async function site(sid){return memo[`site:${sid}`]??=preview?Promise.resolve(snapshot.sites[sid]):getJSON(`data/sites/${encodeURIComponent(sid)}.json`)}
-  async function post(sid,slug){return memo[`post:${sid}:${slug}`]??=preview?Promise.resolve(snapshot.posts[`${sid}:${slug}`]):getJSON(`data/posts/${encodeURIComponent(sid)}/${encodeURIComponent(slug)}.json`)}
-  const active=r=>r.startsWith('post/')||r.startsWith('about/')?r.split('/')[1]:r==='cart'?'fruit':r.split('/')[0];
-  function theme(sid,settings){document.documentElement.style.setProperty('--accent',settings?.accent||({gourmet:'#8d5b2b',town:'#416d79',fruit:'#ab654e'}[sid]||'#476450'));document.documentElement.style.setProperty('--accentsoft',sid==='town'?'#e5f1f2':sid==='fruit'?'#f8e8e0':sid==='gourmet'?'#f4eadf':'#edf3eb')}
-  const sampleDemo=standalone&&ownSite==='sample';
-  const sampleThemes={
-    natural:{ja:'ナチュラル',en:'Natural'},
-    apple:{ja:'Apple風 / ギャラリー',en:'Apple-inspired / Gallery',source:'https://styles.refero.design/style/a73148b9-449b-42cd-9f38-86ef694f500e'},
-    notion:{ja:'Notion風 / ノート',en:'Notion-inspired / Notebook',source:'https://styles.refero.design/style/2bf4c61f-de10-4614-ba1b-20c0453bd2a9'},
-    dala:{ja:'Dala風 / ダーク',en:'Dala-inspired / Dark',source:'https://styles.refero.design/style/e5f5f8cf-e68d-4ed1-bbf5-6b67569af648'},
-    dope:{ja:'dope.security風',en:'dope.security-inspired',source:'https://styles.refero.design/style/e1f18a7e-5af1-46b3-8f89-bce6c78b80d4'}
-  };
-  const themeSwitching=sampleDemo&&app.dataset.themeSwitcher==='true';
-  let sampleTheme=Object.hasOwn(sampleThemes,app.dataset.template)?app.dataset.template:'natural';
-  if(sampleDemo){if(themeSwitching){try{const saved=localStorage.getItem('markdown-cms-sample-theme');if(Object.hasOwn(sampleThemes,saved))sampleTheme=saved}catch{}}document.documentElement.dataset.sampleTheme=sampleTheme}
-  function themePicker(){return `<label class="theme-picker"><span>${lang==='ja'?'テーマ':'Theme'}</span><select data-theme-picker>${Object.entries(sampleThemes).map(([id,label])=>`<option value="${id}" ${id===sampleTheme?'selected':''}>${h(label[lang])}</option>`).join('')}</select></label><a class="theme-source" data-theme-source href="${h(sampleThemes[sampleTheme].source||'#')}" ${sampleThemes[sampleTheme].source?'':'hidden'} target="_blank" rel="noopener noreferrer">${lang==='ja'?'参照元 ↗':'Reference ↗'}</a>`}
-  function nav(sid){
-    if(standalone){
-      if(sampleDemo)return themeSwitching?themePicker():`<a href="${h(routeLink('about/'+ownSite))}">${h(tr('about'))}</a>`;
-      return `<a class="selected" href="${h(routeLink(ownSite))}">${h(tr(ownSite))}</a>`+
-        (portalUrl?`<a href="${h(portalUrl)}">${h(tr('portal'))}</a>`:'');
-    }
-    return `<a href="${h(routeLink('portal'))}" class="${sid==='portal'?'selected':''}">${h(tr('portal'))}</a>`+
-      discoveredSites.map(s=>`<a href="${h(s.external?s.home_url:routeLink(s.id))}">${h(brands[s.id]?.[lang]||loc(s).name)}</a>`).join('');
+  var app = document.getElementById('app');
+  if (!app) return;
+  var SITE = app.dataset.siteId || 'date';
+  var ROOT = app.dataset.root || './';
+  var preview = app.dataset.preview === 'true';
+  var snapshot = null;
+  if (preview) {
+    var pd = document.getElementById('preview-data');
+    if (pd) { try { snapshot = JSON.parse(pd.textContent); } catch (e) { snapshot = null; } }
   }
-  function header(sid,settings={}){const brand=brands[sid]||brands.portal;const identity=loc(settings);return `<header class="topbar"><div class="container topline"><a class="brand" href="${h(routeLink(sid))}"><span class="brandicon brandicon-${h(sid)}">${logos[sid]||logos.portal}</span><span><span class="brandname">${h(identity.name||brand[lang])}</span><span class="brandsub">${h(identity.hero_note||settings.eyebrow|| (sid==='sample'?'MARKDOWN CMS DEMO':sid==='portal'?tr('brandTag'):tr(sid)))}</span></span></a><div class="header-right"><nav class="links" aria-label="Site navigation">${nav(sid)}${sid==='fruit'?`<a href="${h(routeLink('cart'))}">${tr('cart')} <span class="cartbadge" data-cartcount>${cartCount()}</span></a>`:''}</nav><div class="language-switch" role="group" aria-label="Language / 言語"><button type="button" data-lang="ja" aria-pressed="${lang==='ja'}" class="${lang==='ja'?'chosen':''}">日本語</button><button type="button" data-lang="en" aria-pressed="${lang==='en'}" class="${lang==='en'?'chosen':''}">English</button></div></div></div></header>`;}
-  function footer(settings={}){
-    const links=standalone?[[ownSite,loc(settings).short_name||loc(settings).name||tr(ownSite)],...(portalUrl?[['portal',tr('portal')]]:[])]:[['portal',tr('portal')],...discoveredSites.map(s=>[s.id,brands[s.id]?.[lang]||loc(s).name])];
-    return `<footer class="footer"><div class="container footerinner"><div><strong>${h(standalone?loc(settings).name||brands[ownSite]?.[lang]||ownSite:brands.portal[lang])}</strong><p>${h(sampleDemo?(lang==='ja'?'Markdownで記事を書いて公開する、静的CMSのサンプルです。':'A static CMS sample: write in Markdown and publish.'):tr('foot'))}</p><p>${h(sampleDemo?(themeSwitching?(lang==='ja'?'テーマを切り替えて、同じ記事の見た目を比較できます。':'Switch themes to compare the same content.'):(lang==='ja'?'Markdownの記事を、選んだデザインで表示しています。':'Markdown articles in your chosen design.')):tr('fictitious'))}</p></div><nav class="footlinks">${links.map(([id,label])=>`<a href="${h(id==='portal'&&standalone?portalUrl:(!standalone&&id!=='portal'?(discoveredSites.find(s=>s.id===id)?.home_url||routeLink(id)):routeLink(id)))}">${h(label)}</a>`).join('')}</nav></div></footer>`;
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function getJSON(path) {
+    return fetch(new URL(path, new URL(ROOT, location.href))).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
   }
-  function layout(route,body,settings,pageTitle){const sid=active(route);theme(sid,settings);app.innerHTML=header(sid,settings)+body+footer(settings);document.documentElement.lang=lang;document.title=(pageTitle?pageTitle+' | ':'')+(loc(settings).name||brands[sid]?.[lang]||brands.portal[lang])+(sampleDemo?'':' | '+(lang==='ja'?'JSONサイトデモ':'JSON Sites Demo'));}
-  function itemHref(item){if(standalone&&item.site_id===ownSite)return routeLink(`post/${ownSite}/${item.slug}`);return /^https:\/\//.test(item.url)?item.url:routeLink(`post/${item.site_id}/${item.slug}`)}
-  function tile(raw){const it=loc(raw),product=raw.type==='product',url=itemHref(raw);return `<article class="tile" data-card data-site="${h(raw.site_id)}" data-category="${h(it.category)}"><a href="${h(url)}" aria-label="${h(it.title)}"> <img class="tile-image" src="${h(raw.cover.src)}" alt="${h(it.cover_alt||raw.cover.alt)}" loading="lazy"></a><div class="tile-content"><div class="tile-meta"><span class="tag">${h(it.site_name||raw.site_name||brands[raw.site_id]?.[lang])}</span><span>${date(raw.date)}</span><span>${h(it.category)}</span></div><h3><a href="${h(url)}">${tt(it)}</a></h3><p>${h(it.summary)}</p><div class="tile-foot">${product?`<strong class="price">${yen(raw.price_jpy)} <small>${h(tr('tax'))}</small></strong>`:`<a class="more" href="${h(url)}">${h(tr('read'))}</a>`}${product&&raw.site_id==='fruit'?`<button class="pillbutton" data-add="${h(raw.slug)}" type="button">${tr('add')}</button>`:''}</div></div></article>`}
-  function toolbar(entries,mode){const options=mode==='portal'?[['all',tr('all')],['bakery',tr('bakery')],['town',tr('townNews')],['fruit',tr('fruit')],['gourmet',tr('gourmet')]]:[['all',tr('all')],...new Set(entries.map(x=>loc(x).category))].map((x,i)=>i===0?x:[x,x]);return `<div class="tools"><input class="search" type="search" data-search placeholder="${h(mode==='portal'?tr('searchAll'):tr('searchSite'))}" aria-label="Search"><div class="chips" role="group" aria-label="Filter">${options.map(([id,title])=>`<button type="button" class="chip ${id==='all'?'active':''}" data-filter="${h(id)}">${h(title)}</button>`).join('')}</div></div>`;}
-  // Override site-toolbar category generation separately for clarity.
-  function filters(entries,mode){const opts=mode==='portal'?[['all',tr('all')],...new Map(entries.map(x=>[x.site_id,[x.site_id,brands[x.site_id]?.[lang]||x.site_name]])).values()]:[['all',tr('all')],...[...new Set(entries.map(x=>loc(x).category))].map(x=>[x,x])];return `<div class="tools"><input class="search" type="search" data-search placeholder="${h(mode==='portal'?tr('searchAll'):tr('searchSite'))}" aria-label="Search"><div class="chips">${opts.map(([id,label])=>`<button type="button" data-filter="${h(id)}" class="chip ${id==='all'?'active':''}">${h(label)}</button>`).join('')}</div></div>`;}
-  function listing(entries,mode){return filters(entries,mode)+`<div class="grid" data-grid>${entries.map(tile).join('')}</div><div data-empty hidden class="empty">${tr('noMatches')}</div>`}
-  const pageTemplates=window.MarkdownCMSTemplates({h,loc,tr,date,routeLink,filters,tile});
-  const sampleTemplate=()=>pageTemplates[sampleTheme]||null;
-  function siteCard(raw){
-    const s=loc(raw), title=s.name, photo=raw.hero_image_src;
-    return `<a class="siteitem" href="${h(raw.external?raw.home_url:routeLink(raw.id))}"><span class="siteitem-photo">${photo?`<img src="${h(photo)}" alt="" loading="lazy">`:''}</span><div class="siteitem-info"><span class="siteitem-type">${h(s.kind_label||raw.kind_label||'')}</span><strong>${h(title)}</strong><span class="siteitem-description">${h(s.subtitle||s.description)}</span><span class="site-link-label">${h(tr('siteOpen'))}</span></div></a>`;
-  }
-  function featuredStories(entries){
-    return `<section class="feature-wrap container" aria-label="Featured stories"><div class="photo-features">${entries.slice(0,4).map(raw=>{const it=loc(raw);return `<a href="${h(itemHref(raw))}" class="photo-feature"><img src="${h(raw.cover.src)}" alt="" loading="lazy"><span class="feature-caption"><small>${h(it.category)}</small><strong>${tt(it)}</strong></span></a>`}).join('')}</div></section>`;
+  function loadScript(src) {
+    return new Promise(function (resolve, reject) {
+      var s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
   }
 
-  function hero(id,s){
-    const photo=(id==='portal'?s?.hero_image_src:s?.hero_image_src);
-    const photoHtml=photo?`<img class="hero-photo" src="${h(photo)}" alt="" aria-hidden="true" decoding="async">`:'';
-    if(id==='portal')return `<section class="hero portal">${photoHtml}<div class="container heroinner"><span class="kicker">ONE TOWN, MANY STORIES</span><h1>${h(tr('portalTitle'))}</h1><p>${h(tr('portalDescription'))}<br>${h(tr('marketSubtitle'))}</p><span class="subpill">${h(tr('portalIntro'))}</span></div></section>`;
-    const local=loc(s);
-    return `<section class="hero ${h(id)}">${photoHtml}<div class="container heroinner"><span class="kicker">${h(local.eyebrow||s.eyebrow)}</span><h1>${h(local.hero_title)}</h1><p>${h(local.description)}</p><span class="subpill">${h(local.hero_note)}</span></div></section>`;
+  var GROUPS = ['案内', '第1部・福島', '第2部・置賜', '第3部・会津', '第4部・岩出山', '第5部・仙台城下', '第6部・水と堀', 'コラム'];
+  var PENDING = [
+    ['序章', '仙台という範囲'],
+    ['第19章', '七郷堀と小舟'],
+    ['第20章', '二つの石切町'],
+    ['第21章', '海まで続く堀'],
+    ['第22章', '南の門'],
+    ['第23章', '海の玄関'],
+    ['第24章', '北の在所'],
+    ['第25章', '藩の北端'],
+    ['終章', '町は残る'],
+    ['付録', ''],
+    ['コラム', '古地図で歩く'],
+    ['コラム', '宇和島 ― もうひとつの伊達']
+  ];
+  var entries = [], bySlug = {}, postCache = {};
+  var currentSlug = null, suppressHash = false;
+  var map = null, markers = {}, mapReady = false, mapOpen = false;
+
+  app.innerHTML =
+    '<main>' +
+    '<h1 id="siteName">読み込み中…</h1>' +
+    '<div class="sub" id="siteSub"></div>' +
+    '<h2>地図 ― 登場する城と神社仏閣<button id="mapToggle" type="button">開く</button></h2>' +
+    '<div id="mapWrap" class="hidden"><div id="map2d"></div>' +
+    '<p class="note">ピンを押すと、その場所の説明と、本の対応する章への案内が出ます。各場所の3D地図は<a href="./map-list.html">3Dマップ一覧</a>からも開けます。</p></div>' +
+    '<button id="menuBtn" type="button">☰ 目次・章一覧</button>' +
+    '<div class="layout">' +
+    '<aside id="side"></aside>' +
+    '<div class="content"><section id="detail"><div class="rstatus">読み込み中…</div></section>' +
+    '<p class="note">原稿はMarkdownで書かれ、Markdown CMSの仕組みで記事になっています。章を選ぶと、右側に本文が出ます。本文ができた章から順次追加します。</p>' +
+    '</div></div></main>';
+
+  var side = document.getElementById('side');
+  var detail = document.getElementById('detail');
+  document.getElementById('menuBtn').addEventListener('click', function () { side.classList.toggle('open'); });
+  document.getElementById('mapToggle').addEventListener('click', function () { toggleMap(); });
+
+  function slugFromPlaceUrl(u) {
+    var m = String(u).match(/#\/post\/[^/]+\/([a-z0-9-]+)/) || String(u).match(/docs\/(book-[a-z0-9-]+)\.md/);
+    return m ? m[1] : null;
+  }
+  function placesOfChapter(slug) {
+    if (!window.PLACES) return [];
+    var out = [];
+    window.PLACES.forEach(function (p) {
+      (p.chapters || []).forEach(function (c) { if (slugFromPlaceUrl(c.url) === slug) out.push(p); });
+    });
+    return out;
   }
 
-  async function showPortal(){const d=await portal();discoveredSites=d.sites||[];const body=hero('portal',d)+`<section class="section container"><div class="sectiontitle"><div><span class="kicker">EXPLORE OUR SITES</span><h2>${h(tr('discover'))}</h2></div></div><div class="siteintro">${d.sites.map(siteCard).join('')}</div><div class="sectiontitle"><div><span class="kicker">LATEST FROM OUR NETWORK</span><h2>${h(tr('latest'))}</h2></div><p class="caption">${d.entries.length} ${h(tr('articles'))}</p></div>${d.sites.length?listing(d.entries,'portal'):'<div class="notice">公開元の4サイトを登録すると、ここに記事が集まります。data/sources.json を設定してください。</div>'}<div class="info">${h(tr('localInfo'))}</div></section>`;layout('portal',body,{});}
-  function services(){return `<div class="servicegrid">${['🏡','🌱','🚌','🌲','📅','📚'].map((ico,i)=>`<div class="service"><span>${ico}</span>${h(tr('services')[i])}</div>`).join('')}</div>`;}
-  async function related(exclude){const mount=app.querySelector('[data-crosslist]');if(!mount)return;const d=await portal();const other=d.entries.filter(x=>x.site_id!==exclude).slice(0,4);if(!other.length){if(standalone&&portalUrl){mount.innerHTML=`<a class="backlink" href="${h(portalUrl)}">${h(tr('others'))} →</a>`;}else{mount.closest('.cross')?.remove();}return;}mount.innerHTML=other.map(raw=>{const it=loc(raw);return `<a class="crosslink" href="${h(itemHref(raw))}"><img src="${h(raw.cover.src)}" alt=""><div><span>${h(brands[raw.site_id]?.[lang]||raw.site_name)}</span><strong>${tt(it)}</strong></div></a>`}).join('')}
-  async function showSite(sid){const d=await site(sid),s=d.site,ls=loc(s);if(sampleDemo&&sid==='sample'&&sampleTemplate()){layout(sid,sampleTemplate().home(d),s);return}const label=sid==='town'?tr('newsTown'):sid==='fruit'?tr('newsFruit'):sid==='gourmet'?tr('newsGourmet'):tr('news');const body=hero(sid,s)+featuredStories(d.entries)+`<section class="section container">${sid==='town'?services():''}<div class="introgrid"><div class="sectiontitle"><div><span class="kicker">${sid==='fruit'?'SEASONAL FRUITS':sid==='town'?'TOWN NEWS':sid==='gourmet'?'YAMAGATA GOURMET':'NEWS & JOURNAL'}</span><h2>${h(label)}</h2></div><p class="caption">${d.entries.length} ${h(tr('items'))}</p></div><aside class="rightnote"><h3>About ${h(ls.short_name)}</h3><p>${h(ls.description)}</p><a href="${h(routeLink('about/'+sid))}" class="more">${h(tr('about'))} →</a></aside></div>${listing(d.entries,'site')}${sid==='fruit'?`<div class="notice" style="margin-top:24px">${h(tr('demoShop'))}</div>`:''}<div class="cross"><h2>${h(tr('others'))}</h2><div class="crosslinks" data-crosslist></div></div></section>`;layout(sid,body,s);await related(sid)}
-  async function prevNext(sid,slug){try{const d=await site(sid);const es=(d.entries||[]).filter(e=>e&&e.slug).slice().sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));const i=es.findIndex(e=>e.slug===slug);if(i<0)return;const prev=es[i-1],next=es[i+1];if(!prev&&!next)return;const host=document.querySelector('.article .paper')||document.querySelector('.article');if(!host)return;const a=(e,label)=>e?`<a class="pillbutton ghost" href="${h(itemHref(loc(e)))}">${label}：${h(loc(e).title)}</a>`:'<span></span>';const nav=document.createElement('nav');nav.style.cssText='display:flex;justify-content:space-between;gap:12px;margin-top:28px;flex-wrap:wrap';nav.innerHTML=a(prev,'← 前の記事')+a(next,'次の記事 →');host.appendChild(nav);}catch(e){}}
-  async function showPost(sid,slug){const d=await site(sid),raw=await post(sid,slug);if(!raw)throw Error('Article missing');if(sampleDemo&&sid==='sample'&&sampleTemplate()){layout('post/'+sid+'/'+slug,sampleTemplate().detail(raw,d),d.site,loc(raw).title);await prevNext(sid,slug);return}const it=loc(raw),ss=loc(d.site);const purchase=raw.type==='product'?`<div class="purchase"><div><div class="price">${yen(raw.price_jpy)} <small>${h(tr('tax'))}</small></div><small>${h(it.unit)} · ${h(it.stock)}</small></div><button type="button" class="pillbutton" data-add="${h(raw.slug)}">${h(tr('add'))}</button></div><div class="info warn">${h(tr('demoPurchase'))}</div>`:'';
-    const body=`<section class="articlehead"><div class="container"><span class="kicker">${h(ss.name)} / ${h(it.category)} / ${date(raw.date)}${raw.author?' / 投稿者: '+h(raw.author):''}</span><h1>${tt(it)}</h1></div></section><section class="section container"><div class="article"><article class="paper"><img class="articlecover" src="${h(raw.cover.src)}" alt="${h(it.cover_alt||raw.cover.alt)}"><div class="prose">${it.html||raw.html}</div>${purchase}<a class="backlink" href="${h(routeLink(sid))}">← ${h(tr('back'))}</a></article><aside class="rightnote"><h3>${h(ss.name)}</h3><p>${h(ss.description)}</p><a href="${h(routeLink(sid))}" class="more">${h(tr('back'))} →</a></aside></div><div class="cross"><h2>${h(tr('recommended'))}</h2><div class="crosslinks" data-crosslist></div></div></section>`;
-    layout('post/'+sid+'/'+slug,body,d.site,it.title);await prevNext(sid,slug);await related(sid);
+  function renderTOC() {
+    var html = '';
+    GROUPS.forEach(function (g) {
+      var items = entries.filter(function (e) { return e.category === g; });
+      if (!items.length) return;
+      html += '<div class="part">' + esc(g) + '</div><ul>';
+      items.forEach(function (e) {
+        html += '<li data-slug="' + esc(e.slug) + '"><span class="name">' + esc(e.title) + '</span></li>';
+      });
+      html += '</ul>';
+    });
+    html += '<h2 class="todo">これから書く章（雛形）</h2><ul>';
+    PENDING.forEach(function (p, i) {
+      html += '<li class="dim" data-pending="' + i + '"><span class="name">' + esc(p[0] + (p[1] ? ' ' + p[1] : '')) + '</span><span class="meta">雛形</span></li>';
+    });
+    html += '</ul>';
+    side.innerHTML = html;
+    side.querySelectorAll('li[data-slug]').forEach(function (li) {
+      li.addEventListener('click', function () { goPost(li.dataset.slug); });
+    });
+    side.querySelectorAll('li[data-pending]').forEach(function (li) {
+      li.addEventListener('click', function () { showPending(parseInt(li.dataset.pending, 10), li); });
+    });
   }
-  async function showAbout(sid){const d=await site(sid),s=loc(d.site);if(sampleDemo&&sid==='sample'&&sampleTemplate()){layout('about/'+sid,sampleTemplate().about(d),d.site);return}const body=`<section class="articlehead"><div class="container"><span class="kicker">ABOUT</span><h1>${h(s.name)} ${h(tr('aboutTitle'))}</h1></div></section><section class="section container"><article class="paper"><p class="lead">${h(s.description)}</p><p>${h(s.about)}</p><div class="info">${h(tr('noteAbout'))}</div><a class="backlink" href="${h(routeLink(sid))}">← ${h(tr('back'))}</a></article></section>`;layout('about/'+sid,body,d.site)}
-  async function showCart(){const d=await site('fruit'),items=d.entries.filter(x=>x.type==='product'),lines=items.filter(x=>(state.cart[x.slug]||0)>0),total=lines.reduce((sum,x)=>sum+x.price_jpy*state.cart[x.slug],0);const lineHtml=lines.map(raw=>{const it=loc(raw);return `<div class="cartrow"><img src="${h(raw.cover.src)}" alt=""><div><h3><a href="${h(routeLink('post/fruit/'+raw.slug))}">${tt(it)}</a></h3><p>${yen(raw.price_jpy)} × ${state.cart[raw.slug]}</p></div><div class="cartctrl"><button type="button" data-qty="${h(raw.slug)}" data-step="-1" aria-label="Decrease">−</button>${state.cart[raw.slug]}<button type="button" data-qty="${h(raw.slug)}" data-step="1" aria-label="Increase">＋</button></div></div>`}).join('');const body=`<section class="articlehead"><div class="container"><span class="kicker">FRUIT SHOP / DEMO CART</span><h1>${h(tr('demoCart'))}</h1></div></section><section class="section container"><article class="paper"><div class="notice">${h(tr('demoOrder'))}</div>${lines.length?lineHtml+`<div class="total"><span>${h(tr('subtotal'))}</span><span>${yen(total)}</span></div><p class="notice">${h(tr('demoFees'))}</p><button class="pillbutton ghost" type="button" data-clear>${h(tr('clear'))}</button>`:`<p class="empty">${h(tr('emptyCart'))}</p>`}<a class="backlink" href="${h(routeLink('fruit'))}">← ${h(tr('backToShop'))}</a></article></section>`;layout('cart',body,d.site)}
-  function updateFilter(){const q=state.query.trim().toLocaleLowerCase(lang==='en'?'en-US':'ja-JP'),cards=app.querySelectorAll('[data-card]');let hits=0;for(const c of cards){const isMatch=(!q||c.textContent.toLocaleLowerCase().includes(q))&&(state.category==='all'||c.dataset.site===state.category||c.dataset.category===state.category);c.hidden=!isMatch;if(isMatch)hits++}const empty=app.querySelector('[data-empty]');if(empty)empty.hidden=hits>0;}
-  async function render(scroll=true){let route=routeNow();if(standalone&&(route==='portal'||(!([ownSite,'cart'].includes(route)||route.startsWith('post/'+ownSite+'/')||route==='about/'+ownSite))))route=ownSite;state.category='all';state.query='';try{if(route==='portal')await showPortal();else if(['sample','bakery','town','fruit','gourmet'].includes(route))await showSite(route);else if(route.startsWith('post/')){const [,sid,slug]=route.split('/');if(!sid||!slug)throw Error('Invalid URL');await showPost(sid,slug)}else if(route==='cart')await showCart();else if(route.startsWith('about/'))await showAbout(route.split('/')[1]);else await showPortal()}catch(e){console.error(e);app.innerHTML=`<section class="section container"><h1>${h(tr('error'))}</h1><p>${h(e.message)}</p><a href="${h(routeLink('portal'))}">${h(tr('returnPortal'))}</a></section>`}if(scroll)window.scrollTo({top:0,behavior:'auto'})}
-  app.addEventListener('change',e=>{if(themeSwitching&&e.target.matches('[data-theme-picker]')&&Object.hasOwn(sampleThemes,e.target.value)){sampleTheme=e.target.value;document.documentElement.dataset.sampleTheme=sampleTheme;const sourceLink=app.querySelector('[data-theme-source]');if(sourceLink){sourceLink.hidden=!sampleThemes[sampleTheme].source;sourceLink.href=sampleThemes[sampleTheme].source||'#'}try{localStorage.setItem('markdown-cms-sample-theme',sampleTheme)}catch{}render(false)}});
-  app.addEventListener('input',e=>{if(e.target.matches('[data-search]')){state.query=e.target.value;updateFilter()}});
-  app.addEventListener('click',e=>{const l=e.target.closest('[data-lang]');if(l){const target=l.dataset.lang;if(target!==lang&&['ja','en'].includes(target)){lang=target;try{localStorage.setItem('community-language',lang)}catch{}render(false)}return}
-    const f=e.target.closest('[data-filter]');if(f){state.category=f.dataset.filter;app.querySelectorAll('[data-filter]').forEach(b=>b.classList.toggle('active',b===f));updateFilter();return}
-    const add=e.target.closest('[data-add]');if(add){state.cart[add.dataset.add]=(state.cart[add.dataset.add]||0)+1;saveCart();const badge=app.querySelector('[data-cartcount]');if(badge)badge.textContent=cartCount();add.textContent=tr('added');return}
-    const qty=e.target.closest('[data-qty]');if(qty){const k=qty.dataset.qty;state.cart[k]=Math.max(0,(state.cart[k]||0)+Number(qty.dataset.step));if(!state.cart[k])delete state.cart[k];saveCart();showCart();return}
-    if(e.target.closest('[data-clear]')){state.cart={};saveCart();showCart()}
+  function markSelected(slug) {
+    side.querySelectorAll('li').forEach(function (li) {
+      li.classList.toggle('selected', li.dataset.slug === slug);
+    });
+  }
+  function closeSideOnMobile() { side.classList.remove('open'); }
+
+  function goPost(slug) {
+    if (location.hash !== '#/post/' + SITE + '/' + slug) {
+      suppressHash = true;
+      location.hash = '#/post/' + SITE + '/' + slug;
+    }
+    showPost(slug);
+  }
+  function fetchPost(slug) {
+    if (postCache[slug]) return Promise.resolve(postCache[slug]);
+    if (preview && snapshot && snapshot.posts) {
+      var d = snapshot.posts[SITE + ':' + slug];
+      if (d) { postCache[slug] = d; return Promise.resolve(d); }
+    }
+    return getJSON('data/posts/' + SITE + '/' + encodeURIComponent(slug) + '.json').then(function (d) {
+      postCache[slug] = d; return d;
+    });
+  }
+  function showPost(slug) {
+    var entry = bySlug[slug];
+    if (!entry) return;
+    currentSlug = slug;
+    markSelected(slug);
+    closeSideOnMobile();
+    detail.innerHTML = '<div class="rstatus">読み込み中…</div>';
+    fetchPost(slug).then(function (d) {
+      if (currentSlug !== slug) return;
+      var idx = entries.indexOf(entry);
+      var prev = idx > 0 ? entries[idx - 1] : null;
+      var next = idx >= 0 && idx < entries.length - 1 ? entries[idx + 1] : null;
+      var places = placesOfChapter(slug);
+      var ph = '';
+      if (places.length) {
+        ph = '<p class="dplaces">この章に出てくる場所: ' + places.map(function (p) {
+          return '<a href="javascript:void(0)" data-place="' + esc(p.name) + '">' + esc(p.name) + '</a>';
+        }).join(' ／ ') + '（押すと地図がその場所に寄ります）</p>';
+      }
+      detail.innerHTML =
+        '<div class="dpart">' + esc(d.category || entry.category || '') + '</div>' +
+        '<h3>' + esc(d.title || entry.title) + '</h3>' +
+        (d.subtitle ? '<p class="dsub">' + esc(d.subtitle) + '</p>' : '') +
+        '<div class="dmeta">投稿者: ' + esc(d.author || 'ミューズさん') + '</div>' +
+        '<article class="abody">' + (d.html || '') + '</article>' +
+        ph +
+        '<div class="rnav">' +
+        (prev ? '<a href="#/post/' + SITE + '/' + esc(prev.slug) + '">← ' + esc(prev.title) + '</a>' : '<span></span>') +
+        (next ? '<a href="#/post/' + SITE + '/' + esc(next.slug) + '">' + esc(next.title) + ' →</a>' : '<span></span>') +
+        '</div>';
+      document.title = (d.title || entry.title) + ' | ' + (feedSiteName || '');
+      detail.querySelectorAll('[data-place]').forEach(function (a) {
+        a.addEventListener('click', function () { focusPlace(a.dataset.place); });
+      });
+      window.scrollTo({ top: 0 });
+    }).catch(function () {
+      detail.innerHTML = '<div class="rstatus">記事を読み込めませんでした。</div>';
+    });
+  }
+  function showPending(i, li) {
+    side.querySelectorAll('li').forEach(function (x) { x.classList.remove('selected'); });
+    if (li) li.classList.add('selected');
+    closeSideOnMobile();
+    currentSlug = null;
+    var p = PENDING[i];
+    detail.innerHTML =
+      '<div class="dpart">これから書く章</div><h3>' + esc(p[0] + (p[1] ? ' ' + p[1] : '')) + '</h3>' +
+      '<div class="dbody"><p>まだ雛形だけの章です。本文ができたら、ここでそのまま読めるようになります。</p></div>';
+  }
+
+  function ensureMap() {
+    if (mapReady) return Promise.resolve();
+    var css = document.createElement('link');
+    css.rel = 'stylesheet'; css.href = 'assets/vendor/leaflet/leaflet.css';
+    document.head.appendChild(css);
+    return loadScript('assets/vendor/leaflet/leaflet.js')
+      .then(function () { return loadScript('places.js'); })
+      .then(function () {
+        if (!window.L || !window.PLACES) return;
+        map = L.map('map2d');
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors', maxZoom: 18 }).addTo(map);
+        var pts = [];
+        window.PLACES.forEach(function (p) {
+          var icon = L.divIcon({ className: '', html: '<div class="pin ' + esc(p.kind) + '"></div>', iconSize: [16, 16], iconAnchor: [8, 8] });
+          var m = L.marker([p.lat, p.lon], { icon: icon }).addTo(map);
+          markers[p.name] = m;
+          var chap = '';
+          if (p.chapters && p.chapters.length) {
+            chap = '本では: ' + p.chapters.map(function (c) {
+              var s = slugFromPlaceUrl(c.url);
+              return s && bySlug[s] ? '<a href="#/post/' + SITE + '/' + s + '">' + esc(c.label) + '</a>' : esc(c.label);
+            }).join(' ／ ') + ' に出てきます。';
+          } else {
+            chap = '本ではまだ取り上げていません（この地図が先行しています）。';
+          }
+          var html = '<div class="pop"><h3>' + esc(p.name) + '<span class="kind">' + esc(({ castle: '城', shrine: '神社', temple: '寺', site: '史跡' })[p.kind] || '神社仏閣') + '</span></h3>' +
+            '<p>' + esc(p.desc) + '</p>' +
+            '<div class="chap">' + chap + '<br><a href="./map.html?scene=' + esc(p.scene) + '&focus=' + encodeURIComponent(p.name) + '">3Dマップで見る（' + esc(p.sceneTitle) + '）</a></div></div>';
+          m.bindPopup(html, { maxWidth: 320 });
+          pts.push([p.lat, p.lon]);
+        });
+        if (pts.length) map.fitBounds(pts, { padding: [30, 30] });
+        mapReady = true;
+      });
+  }
+  function toggleMap(forceOpen) {
+    var wrap = document.getElementById('mapWrap');
+    var btn = document.getElementById('mapToggle');
+    var willOpen = forceOpen != null ? forceOpen : !mapOpen;
+    if (willOpen) {
+      wrap.classList.remove('hidden');
+      btn.textContent = '閉じる';
+      mapOpen = true;
+      ensureMap().then(function () {
+        if (map) setTimeout(function () { map.invalidateSize(); }, 60);
+      });
+    } else {
+      wrap.classList.add('hidden');
+      btn.textContent = '開く';
+      mapOpen = false;
+    }
+  }
+  function focusPlace(name) {
+    toggleMap(true);
+    ensureMap().then(function () {
+      var m = markers[name];
+      if (!m) return;
+      setTimeout(function () {
+        map.invalidateSize();
+        map.flyTo(m.getLatLng(), Math.max(map.getZoom(), 13));
+        m.openPopup();
+      }, 120);
+    });
+  }
+
+  function route() {
+    var m = location.hash.match(/#\/post\/[^/]+\/([a-z0-9-]+)/);
+    if (m && bySlug[m[1]]) { showPost(m[1]); return true; }
+    return false;
+  }
+  window.addEventListener('hashchange', function () {
+    if (suppressHash) { suppressHash = false; return; }
+    route();
   });
-  window.addEventListener('hashchange',()=>render(true));render(true);
+
+  var feedSiteName = '';
+  var feedPromise;
+  if (preview && snapshot && snapshot.sites && snapshot.sites[SITE]) {
+    feedPromise = Promise.resolve(snapshot.sites[SITE]);
+  } else {
+    feedPromise = getJSON('data/sites/' + SITE + '.json');
+  }
+  feedPromise.then(function (feed) {
+    feedSiteName = (feed.site && feed.site.name) || '';
+    document.getElementById('siteName').textContent = feedSiteName || '伊達の国を歩く（仮）';
+    document.getElementById('siteSub').textContent = (feed.site && feed.site.description) || '';
+    document.title = feedSiteName;
+    entries = (feed.entries || []).slice();
+    entries.forEach(function (e) { bySlug[e.slug] = e; });
+    renderTOC();
+    if (!route()) {
+      var first = bySlug['about-this-site'] ? 'about-this-site' : (entries[0] && entries[0].slug);
+      if (first) showPost(first);
+    }
+    // Places are only needed for the map / in-article place links; load quietly in background.
+    loadScript('places.js').catch(function () { });
+  }).catch(function () {
+    detail.innerHTML = '<div class="rstatus">サイトのデータを読み込めませんでした。</div>';
+  });
 })();
