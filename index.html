@@ -48,6 +48,9 @@
   #detail .dmeta { color: #888; font-size: .85rem; margin: 4px 0; }
   #detail .dbody { font-size: .94rem; }
   .openBtn { display: inline-block; margin-top: 10px; padding: 8px 18px; border-radius: 999px; background: #b03a2e; color: #fff !important; text-decoration: none !important; font-weight: 700; font-size: .92rem; }
+
+  #mapToggle { margin-left: 10px; padding: 3px 14px; border-radius: 999px; border: 1px solid rgba(128,128,128,.45); background: transparent; color: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; vertical-align: middle; }
+  #mapToggle:hover { background: rgba(176,58,46,.12); }
   #menuBtn { display: none; }
   @media (max-width: 900px) {
     #menuBtn { display: inline-block; position: sticky; top: 8px; z-index: 1200; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(128,128,128,.4); background: #b03a2e; color: #fff; font-weight: 700; font-size: .95rem; margin-bottom: 10px; cursor: pointer; }
@@ -137,9 +140,11 @@
     <h3>章を選ぶと、ここに内容が出ます</h3>
     <div class="dbody">目次から章を選んでください。本文の下書きがあるものは21点です。地図のピンを押しても、その場所の説明がここに出ます。</div>
   </section>
-  <h2>地図 ― 登場する城と神社仏閣</h2>
+  <h2>地図 ― 登場する城と神社仏閣<button id="mapToggle" type="button" aria-expanded="false">開く</button></h2>
+  <div id="mapWrap" style="display:none">
   <div id="map2d"></div>
   <p class="note" style="margin-top:6px">ピンを押すと、その場所の説明と、本の対応する章への案内が出ます。地図は章ごとに、登場する場所から順に増やしていきます。各場所の3D地図は<a href="./map-list.html">3Dマップ一覧</a>からも開けます。</p>
+  </div>
 
   <p class="note">原稿の正本は sengoku-life-sim リポジトリの docs にあり、リンク先はそちらです。Zenn 側には非公開の下書きコピーを保存しています。本文ができた章から、こちらへも順次追加します。文字数は実文字数（100字単位に四捨五入）です。付属の3Dマップは<a href="./map-list.html">3Dマップ一覧</a>から開けます。</p>
   </div>
@@ -173,6 +178,7 @@
     pts.push([p.lat, p.lon]);
   });
   if (pts.length) map.fitBounds(pts, { padding: [30, 30] });
+  window.__pts = pts;
 })();
 </script>
 
@@ -231,9 +237,35 @@
     if (window.innerWidth <= 900) detail.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   window.__focusPlace = function(name){
-    var m = window.__markers && window.__markers[name];
-    if (m && window.__map) { window.__map.setView(m.getLatLng(), Math.max(window.__map.getZoom(), 12)); m.openPopup(); if (window.__onPlaceClick && window.PLACES) { var p = window.PLACES.filter(function(x){ return x.name === name; })[0]; if (p) window.__onPlaceClick(p); } }
+    if (window.__expandMap) window.__expandMap();
+    setTimeout(function(){
+      var m = window.__markers && window.__markers[name];
+      if (m && window.__map) {
+        window.__map.setView(m.getLatLng(), Math.max(window.__map.getZoom(), 12));
+        m.openPopup();
+        var mw = document.getElementById("mapWrap");
+        if (mw && window.innerWidth <= 900) mw.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (window.__onPlaceClick && window.PLACES) { var p = window.PLACES.filter(function(x){ return x.name === name; })[0]; if (p) window.__onPlaceClick(p); }
+      }
+    }, 220);
   };
+  var mapWrap = document.getElementById("mapWrap");
+  var mapToggle = document.getElementById("mapToggle");
+  function setMap(open){
+    if (!mapWrap || !mapToggle) return;
+    mapWrap.style.display = open ? "" : "none";
+    mapToggle.textContent = open ? "閉じる" : "開く";
+    mapToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) setTimeout(function(){
+      if (window.__map) {
+        window.__map.invalidateSize();
+        if (window.__pts && window.__pts.length) window.__map.fitBounds(window.__pts, { padding: [30, 30] });
+      }
+    }, 80);
+  }
+  window.__expandMap = function(){ setMap(true); };
+  if (mapToggle) mapToggle.addEventListener("click", function(){ setMap(mapWrap.style.display === "none"); });
+  if (location.hash === "#mapopen") setTimeout(function(){ setMap(true); }, 350);
   var first = document.querySelector("#side ul li");
   if (first) showChapter(first, false);
 })();
