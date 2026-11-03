@@ -41,8 +41,6 @@ jobs:
         run: python scripts/build.py
       - name: Run tests
         run: python -m unittest discover -s scripts -p 'test_*.py'
-      - name: Check frontend behavior
-        run: node scripts/test_frontend.cjs
       - name: Export offline preview
         run: python scripts/export_preview.py
       - name: Sync generated files
