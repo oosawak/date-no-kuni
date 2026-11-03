@@ -10,7 +10,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第15章 二つの城、二つの格子",
-    "url": "index.html#/post/book-ch15-two-grids"
+    "url": "index.html#/post/date/book-ch15-two-grids"
    }
   ]
  },
@@ -25,11 +25,11 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第15章 二つの城、二つの格子",
-    "url": "index.html#/post/book-ch15-two-grids"
+    "url": "index.html#/post/date/book-ch15-two-grids"
    },
    {
     "label": "第18章 若林城を貫く水",
-    "url": "index.html#/post/book-ch18-rokugo-hori"
+    "url": "index.html#/post/date/book-ch18-rokugo-hori"
    }
   ]
  },
@@ -44,7 +44,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第14章 北と東の足軽町",
-    "url": "index.html#/post/book-ch14-kita-higashi-ashigaru"
+    "url": "index.html#/post/date/book-ch14-kita-higashi-ashigaru"
    }
   ]
  },
@@ -59,7 +59,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第6章 二つの八幡",
-    "url": "index.html#/post/book-ch06-hachiman"
+    "url": "index.html#/post/date/book-ch06-hachiman"
    }
   ]
  },
@@ -74,7 +74,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第13章 街道と裏通りの職人たち",
-    "url": "index.html#/post/book-ch13-shokunin"
+    "url": "index.html#/post/date/book-ch13-shokunin"
    }
   ]
  },
@@ -89,11 +89,11 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第10章 五十人町に住んでいた",
-    "url": "index.html#/post/book-ch10-gojuninmachi"
+    "url": "index.html#/post/date/book-ch10-gojuninmachi"
    },
    {
     "label": "第6章 二つの八幡",
-    "url": "index.html#/post/book-ch06-hachiman"
+    "url": "index.html#/post/date/book-ch06-hachiman"
    }
   ]
  },
@@ -118,7 +118,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "index.html#/post/book-ch01-yanagawa-koori"
+    "url": "index.html#/post/date/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -133,7 +133,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "index.html#/post/book-ch01-yanagawa-koori"
+    "url": "index.html#/post/date/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -148,7 +148,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "index.html#/post/book-ch01-yanagawa-koori"
+    "url": "index.html#/post/date/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -163,7 +163,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "index.html#/post/book-ch01-yanagawa-koori"
+    "url": "index.html#/post/date/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -178,7 +178,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "index.html#/post/book-ch01-yanagawa-koori"
+    "url": "index.html#/post/date/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -193,11 +193,11 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第2章 福島城下",
-    "url": "index.html#/post/book-ch02-fukushima-jokamachi"
+    "url": "index.html#/post/date/book-ch02-fukushima-jokamachi"
    },
    {
     "label": "第7章 摺上原と人取橋",
-    "url": "index.html#/post/book-ch07-aizu-shigezane"
+    "url": "index.html#/post/date/book-ch07-aizu-shigezane"
    }
   ]
  },
