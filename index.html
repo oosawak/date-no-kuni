@@ -51,6 +51,21 @@
 
   #mapToggle { margin-left: 10px; padding: 3px 14px; border-radius: 999px; border: 1px solid rgba(128,128,128,.45); background: transparent; color: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; vertical-align: middle; }
   #mapToggle:hover { background: rgba(176,58,46,.12); }
+
+  #reader { display: none; }
+  #reader .rnav { display: flex; justify-content: space-between; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+  #reader .rnav a { color: #b03a2e; font-weight: 700; text-decoration: none; font-size: .92rem; }
+  #reader .rnav a:hover { text-decoration: underline; }
+  #reader .rbody { font-size: 1.02rem; line-height: 1.95; }
+  #reader .rbody h1 { font-size: 1.45rem; line-height: 1.5; margin: 4px 0 14px; }
+  #reader .rbody h2 { font-size: 1.15rem; margin: 26px 0 8px; }
+  #reader .rbody h3 { font-size: 1.05rem; margin: 20px 0 6px; }
+  #reader .rbody blockquote { margin: 10px 0 18px; padding: 8px 14px; border-left: 3px solid rgba(128,128,128,.45); color: #777; font-size: .88rem; line-height: 1.7; }
+  #reader .rbody ul { list-style: disc; padding-left: 1.4em; margin: 8px 0; }
+  #reader .rbody li { display: list-item; border-bottom: none; padding: 2px 0; }
+  #reader .rbody hr { border: none; border-top: 1px solid rgba(128,128,128,.35); margin: 20px 0; }
+  #reader .rstatus { color: #888; font-size: .9rem; padding: 18px 0; }
+  #reader .rgh { font-size: .85rem; color: #888; }
   #menuBtn { display: none; }
   @media (max-width: 900px) {
     #menuBtn { display: inline-block; position: sticky; top: 8px; z-index: 1200; padding: 8px 16px; border-radius: 999px; border: 1px solid rgba(128,128,128,.4); background: #b03a2e; color: #fff; font-weight: 700; font-size: .95rem; margin-bottom: 10px; cursor: pointer; }
@@ -68,7 +83,7 @@
   <div class="layout">
   <aside id="side">
   <h1>『伊達の国を歩く（仮）』下書き保存の一覧</h1>
-  <div class="sub">目次で章を選ぶと、右側に内容が出ます。原稿（GitHub上のMarkdown）は右側のボタンから開きます。スマホでは上の「目次・章一覧」ボタンから選べます。下書きのコピーは非公開リポジトリ zenn-articles に保存中。2026年11月3日時点</div>
+  <div class="sub">目次で章を選ぶと、右側に内容が出ます。原稿は「本文を読む」から、このページの中でそのまま読めます。スマホでは上の「目次・章一覧」ボタンから選べます。下書きのコピーは非公開リポジトリ zenn-articles に保存中。2026年11月3日時点</div>
 
 
   <h2>保存済み ― 本文の下書きがあるもの（21点）</h2>
@@ -140,7 +155,13 @@
     <h3>章を選ぶと、ここに内容が出ます</h3>
     <div class="dbody">目次から章を選んでください。本文の下書きがあるものは21点です。地図のピンを押しても、その場所の説明がここに出ます。</div>
   </section>
-  <h2>地図 ― 登場する城と神社仏閣<button id="mapToggle" type="button" aria-expanded="false">開く</button></h2>
+  <section id="reader">
+    <div class="rnav"><a href="javascript:void(0)" id="readerBack">← 詳細に戻る</a><a class="rgh" id="readerGh" href="#" target="_blank" rel="noopener">GitHubで開く（編集用）</a></div>
+    <div class="rstatus" id="readerStatus" style="display:none">読み込み中…</div>
+    <article class="rbody" id="readerBody"></article>
+    <div class="rnav"><a href="javascript:void(0)" id="readerPrev"></a><a href="javascript:void(0)" id="readerNext"></a></div>
+  </section>
+  <h2 id="mapHead">地図 ― 登場する城と神社仏閣<button id="mapToggle" type="button" aria-expanded="false">開く</button></h2>
   <div id="mapWrap" style="display:none">
   <div id="map2d"></div>
   <p class="note" style="margin-top:6px">ピンを押すと、その場所の説明と、本の対応する章への案内が出ます。地図は章ごとに、登場する場所から順に増やしていきます。各場所の3D地図は<a href="./map-list.html">3Dマップ一覧</a>からも開けます。</p>
@@ -167,7 +188,7 @@
     m.on("click", function(){ if (window.__onPlaceClick) window.__onPlaceClick(p); });
     var chap = "";
     if (p.chapters && p.chapters.length) {
-      chap = "本では: " + p.chapters.map(function(c){ return '<a href="' + c.url + '" target="_blank" rel="noopener">' + c.label + '</a>'; }).join(" ／ ") + " に出てきます。";
+      chap = "本では: " + p.chapters.map(function(c){ var mm = String(c.url).match(/docs\/(book-[a-z0-9-]+)\.md/); return mm ? '<a href="#/post/' + mm[1] + '">' + c.label + '</a>' : '<a href="' + c.url + '" target="_blank" rel="noopener">' + c.label + '</a>'; }).join(" ／ ") + " に出てきます。";
     } else {
       chap = "本ではまだ取り上げていません（この地図が先行しています）。";
     }
@@ -216,7 +237,9 @@
     detail.innerHTML = '<div class="dpart">' + esc(partOf(li)) + '</div><h3>' + esc(title) + '</h3>'
       + (status ? '<div class="dmeta">' + esc(status) + '</div>' : '')
       + ph
-      + (url ? '<a class="openBtn" href="' + url + '"' + (isLocal ? '' : ' target="_blank" rel="noopener"') + '>' + (isLocal ? '開く' : '原稿を開く') + '</a>' : '');
+      + (url ? (isLocal
+          ? '<a class="openBtn" href="' + url + '">開く</a>'
+          : '<a class="openBtn" href="#/post/' + (url.match(/docs\/(book-[a-z0-9-]+)\.md/) || [])[1] + '">' + (meta.indexOf("雛形") >= 0 ? '雛形を読む' : '本文を読む') + '</a> <a class="rgh" style="font-size:.85rem;color:#888" href="' + url + '" target="_blank" rel="noopener">GitHubで開く</a>') : '');
     detail.querySelectorAll("[data-place]").forEach(function(el){
       el.addEventListener("click", function(){ if (window.__focusPlace) window.__focusPlace(el.getAttribute("data-place")); });
     });
@@ -268,6 +291,92 @@
   if (location.hash === "#mapopen") setTimeout(function(){ setMap(true); }, 350);
   var first = document.querySelector("#side ul li");
   if (first) showChapter(first, false);
+})();
+</script>
+
+<script>
+(function(){
+  var RAW_BASE = "https://raw.githubusercontent.com/oosawak/sengoku-life-sim/main/docs/";
+  var reader = document.getElementById("reader");
+  var body = document.getElementById("readerBody");
+  var status = document.getElementById("readerStatus");
+  var gh = document.getElementById("readerGh");
+  var prevA = document.getElementById("readerPrev");
+  var nextA = document.getElementById("readerNext");
+  var detail = document.getElementById("detail");
+  var mapHead = document.getElementById("mapHead");
+  var mapWrap = document.getElementById("mapWrap");
+  var cache = {};
+  var order = [];
+  document.querySelectorAll("#side li a").forEach(function(a){
+    var mm = String(a.getAttribute("href") || "").match(/docs\/(book-[a-z0-9-]+)\.md/);
+    if (mm) order.push({ slug: mm[1], title: a.textContent.trim(), url: a.getAttribute("href") });
+  });
+  function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function inline(s){
+    return esc(s)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  }
+  function mdToHtml(md){
+    var lines = md.replace(/\r\n/g, "\n").split("\n");
+    var out = [], i = 0;
+    function closeList(){ if (out.list) { out.push("</ul>"); out.list = false; } }
+    out.list = false;
+    var html = [];
+    var inList = false, para = [], quote = [];
+    function flushPara(){ if (para.length) { html.push("<p>" + para.map(inline).join("") + "</p>"); para = []; } }
+    function flushQuote(){ if (quote.length) { html.push("<blockquote>" + quote.map(inline).join("<br>") + "</blockquote>"); quote = []; } }
+    function flushList(){ if (inList) { html.push("</ul>"); inList = false; } }
+    lines.forEach(function(ln){
+      var m;
+      if (/^\s*$/.test(ln)) { flushPara(); flushQuote(); flushList(); return; }
+      if ((m = ln.match(/^# (.+)$/))) { flushPara(); flushQuote(); flushList(); html.push("<h1>" + inline(m[1].replace(/^本 /, "")) + "</h1>"); return; }
+      if ((m = ln.match(/^## (.+)$/))) { flushPara(); flushQuote(); flushList(); html.push("<h2>" + inline(m[1]) + "</h2>"); return; }
+      if ((m = ln.match(/^### (.+)$/))) { flushPara(); flushQuote(); flushList(); html.push("<h3>" + inline(m[1]) + "</h3>"); return; }
+      if (/^---+$/.test(ln.trim())) { flushPara(); flushQuote(); flushList(); html.push("<hr>"); return; }
+      if ((m = ln.match(/^>\s?(.*)$/))) { flushPara(); flushList(); quote.push(m[1]); return; }
+      if ((m = ln.match(/^- (.+)$/))) { flushPara(); flushQuote(); if (!inList) { html.push("<ul>"); inList = true; } html.push("<li>" + inline(m[1]) + "</li>"); return; }
+      flushQuote(); flushList(); para.push(ln);
+    });
+    flushPara(); flushQuote(); flushList();
+    return html.join("\n");
+  }
+  function setMode(reading){
+    reader.style.display = reading ? "block" : "none";
+    if (detail) detail.style.display = reading ? "none" : "";
+    if (mapHead) mapHead.style.display = reading ? "none" : "";
+    if (mapWrap) mapWrap.style.display = reading ? "none" : (document.getElementById("mapToggle") && document.getElementById("mapToggle").getAttribute("aria-expanded") === "true" ? "" : "none");
+  }
+  function openPost(slug){
+    var idx = -1;
+    order.forEach(function(o, i){ if (o.slug === slug) idx = i; });
+    if (idx < 0) { setMode(false); return; }
+    setMode(true);
+    gh.href = order[idx].url;
+    prevA.textContent = idx > 0 ? "← " + order[idx - 1].title : "";
+    prevA.href = idx > 0 ? "#/post/" + order[idx - 1].slug : "javascript:void(0)";
+    nextA.textContent = idx < order.length - 1 ? order[idx + 1].title + " →" : "";
+    nextA.href = idx < order.length - 1 ? "#/post/" + order[idx + 1].slug : "javascript:void(0)";
+    if (window.__map) window.__map.closePopup();
+    if (cache[slug]) { status.style.display = "none"; body.innerHTML = cache[slug]; window.scrollTo({ top: 0 }); return; }
+    status.style.display = ""; status.textContent = "読み込み中…"; body.innerHTML = "";
+    fetch(RAW_BASE + slug + ".md").then(function(r){ if (!r.ok) throw new Error(r.status); return r.text(); }).then(function(md){
+      cache[slug] = mdToHtml(md);
+      status.style.display = "none";
+      body.innerHTML = cache[slug];
+      window.scrollTo({ top: 0 });
+    }).catch(function(){
+      status.innerHTML = "読み込めませんでした。時間をおいて開き直すか、<a href=\"" + order[idx].url + "\" target=\"_blank\" rel=\"noopener\">GitHubで開いて</a>ください。";
+    });
+  }
+  function route(){
+    var mm = location.hash.match(/^#\/post\/(book-[a-z0-9-]+)$/);
+    if (mm) openPost(mm[1]); else setMode(false);
+  }
+  window.addEventListener("hashchange", route);
+  document.getElementById("readerBack").addEventListener("click", function(){ history.pushState(null, "", location.pathname + location.search); route(); window.scrollTo({ top: 0 }); });
+  route();
 })();
 </script>
 </body>
