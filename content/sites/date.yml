@@ -1,0 +1,15 @@
+id: date
+name: 伊達の国を歩く（仮）
+short_name: 伊達の国を歩く
+kind: website
+kind_label: 本の下書き
+accent: '#b03a2e'
+eyebrow: BOOK DRAFT / MARKDOWN CMS
+hero_title: '伊達の国を歩く（仮）'
+description: 伊達家の引っ越しをたどる本『伊達の国を歩く（仮）』の下書き確認サイトです。福島・置賜・会津・岩出山から仙台へ。書けた章から、記事としてそのまま読めます。
+subtitle: 下書き確認サイト
+hero_note: Markdown CMS · GitHub更新 · GitHub Pages配信
+about: 伊達家が梁川・米沢・会津・岩出山を経て仙台へ移るまでを、町と地名の残り方からたどる本の下書きです。本文のある章とコラムを公開しています。
+hero_image: date/hero.webp
+theme_switcher: false
+template: natural

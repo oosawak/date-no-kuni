@@ -10,7 +10,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第15章 二つの城、二つの格子",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch15-two-grids.md"
+    "url": "index.html#/post/book-ch15-two-grids"
    }
   ]
  },
@@ -25,11 +25,11 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第15章 二つの城、二つの格子",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch15-two-grids.md"
+    "url": "index.html#/post/book-ch15-two-grids"
    },
    {
     "label": "第18章 若林城を貫く水",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch18-rokugo-hori.md"
+    "url": "index.html#/post/book-ch18-rokugo-hori"
    }
   ]
  },
@@ -44,7 +44,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第14章 北と東の足軽町",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch14-kita-higashi-ashigaru.md"
+    "url": "index.html#/post/book-ch14-kita-higashi-ashigaru"
    }
   ]
  },
@@ -59,7 +59,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第6章 二つの八幡",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch06-hachiman.md"
+    "url": "index.html#/post/book-ch06-hachiman"
    }
   ]
  },
@@ -74,7 +74,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第13章 街道と裏通りの職人たち",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch13-shokunin.md"
+    "url": "index.html#/post/book-ch13-shokunin"
    }
   ]
  },
@@ -89,11 +89,11 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第10章 五十人町に住んでいた",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch10-gojuninmachi.md"
+    "url": "index.html#/post/book-ch10-gojuninmachi"
    },
    {
     "label": "第6章 二つの八幡",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch06-hachiman.md"
+    "url": "index.html#/post/book-ch06-hachiman"
    }
   ]
  },
@@ -118,7 +118,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch01-yanagawa-koori.md"
+    "url": "index.html#/post/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -133,7 +133,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch01-yanagawa-koori.md"
+    "url": "index.html#/post/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -148,7 +148,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch01-yanagawa-koori.md"
+    "url": "index.html#/post/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -163,7 +163,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch01-yanagawa-koori.md"
+    "url": "index.html#/post/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -178,7 +178,7 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第1章 梁川と桑折",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch01-yanagawa-koori.md"
+    "url": "index.html#/post/book-ch01-yanagawa-koori"
    }
   ]
  },
@@ -193,11 +193,11 @@ window.PLACES = [
   "chapters": [
    {
     "label": "第2章 福島城下",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch02-fukushima-jokamachi.md"
+    "url": "index.html#/post/book-ch02-fukushima-jokamachi"
    },
    {
     "label": "第7章 摺上原と人取橋",
-    "url": "https://github.com/oosawak/sengoku-life-sim/blob/main/docs/book-ch07-aizu-shigezane.md"
+    "url": "index.html#/post/book-ch07-aizu-shigezane"
    }
   ]
  },
