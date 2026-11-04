@@ -104,20 +104,6 @@ ul { list-style: none; padding: 0; margin: 0; }
   }
 
   var GROUPS = ['案内', '第1部・福島', '第2部・置賜', '第3部・会津', '第4部・岩出山', '第5部・仙台城下', '第6部・水と堀', 'コラム'];
-  var PENDING = [
-    ['序章', '仙台という範囲'],
-    ['第19章', '七郷堀と小舟'],
-    ['第20章', '二つの石切町'],
-    ['第21章', '海まで続く堀'],
-    ['第22章', '南の門'],
-    ['第23章', '海の玄関'],
-    ['第24章', '北の在所'],
-    ['第25章', '藩の北端'],
-    ['終章', '町は残る'],
-    ['付録', ''],
-    ['コラム', '古地図で歩く'],
-    ['コラム', '宇和島 ― もうひとつの伊達']
-  ];
   var entries = [], bySlug = {}, postCache = {};
   var currentSlug = null, suppressHash = false;
   var map = null, markers = {}, mapReady = false, mapOpen = false;
@@ -133,7 +119,7 @@ ul { list-style: none; padding: 0; margin: 0; }
     '<div class="layout">' +
     '<aside id="side"></aside>' +
     '<div class="content"><section id="detail"><div class="rstatus">読み込み中…</div></section>' +
-    '<p class="note">原稿はMarkdownで書かれ、Markdown CMSの仕組みで記事になっています。章を選ぶと、右側に本文が出ます。本文ができた章から順次追加します。</p>' +
+    '<p class="note">原稿はMarkdownで書かれ、Markdown CMSの仕組みで記事になっています。章を選ぶと、右側に本文が出ます。</p>' +
     '</div></div></main>';
 
   var side = document.getElementById('side');
@@ -165,17 +151,9 @@ ul { list-style: none; padding: 0; margin: 0; }
       });
       html += '</ul>';
     });
-    html += '<h2 class="todo">これから書く章（雛形）</h2><ul>';
-    PENDING.forEach(function (p, i) {
-      html += '<li class="dim" data-pending="' + i + '"><span class="name">' + esc(p[0] + (p[1] ? ' ' + p[1] : '')) + '</span><span class="meta">雛形</span></li>';
-    });
-    html += '</ul>';
     side.innerHTML = html;
     side.querySelectorAll('li[data-slug]').forEach(function (li) {
       li.addEventListener('click', function () { goPost(li.dataset.slug); });
-    });
-    side.querySelectorAll('li[data-pending]').forEach(function (li) {
-      li.addEventListener('click', function () { showPending(parseInt(li.dataset.pending, 10), li); });
     });
   }
   function markSelected(slug) {
@@ -241,17 +219,6 @@ ul { list-style: none; padding: 0; margin: 0; }
       detail.innerHTML = '<div class="rstatus">記事を読み込めませんでした。</div>';
     });
   }
-  function showPending(i, li) {
-    side.querySelectorAll('li').forEach(function (x) { x.classList.remove('selected'); });
-    if (li) li.classList.add('selected');
-    closeSideOnMobile();
-    currentSlug = null;
-    var p = PENDING[i];
-    detail.innerHTML =
-      '<div class="dpart">これから書く章</div><h3>' + esc(p[0] + (p[1] ? ' ' + p[1] : '')) + '</h3>' +
-      '<div class="dbody"><p>まだ雛形だけの章です。本文ができたら、ここでそのまま読めるようになります。</p></div>';
-  }
-
   function ensureMap() {
     if (mapReady) return Promise.resolve();
     var css = document.createElement('link');
