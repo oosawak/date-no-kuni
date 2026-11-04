@@ -123,7 +123,7 @@
     <div id="riverNames" class="note"></div>
     <label class="lbl">メインの川の太さ: <span id="riverVal"></span></label>
     <input type="range" id="riverWidth" min="40" max="220" step="10" value="110">
-    <p class="note">川は全部同じ太さにはせず、その地域のメインの川だけを太く描きます（仙台では広瀬川、福島では阿武隈川など）。その他の川は細いままです。</p>
+    <p class="note">川は全部同じ太さにはせず、その地域のメインの川だけを太く描きます（仙台では広瀬川、福島では阿武隈川など）。その他の川は細いままです。海のある地域では、標高データのない海域（標高0m）を青い海面として描きます。</p>
     <p class="note">範囲は少しずつ広げる予定です: 福島／置賜／仙台〜宮城南部／仙台〜宮城北部／一関〜盛岡。まずは仙台で型を作ります。</p>
   </section>
   </div>
@@ -219,13 +219,18 @@ function buildTerrain(){
   const ex = parseFloat($("#exSlider").value), SIZE = 200, yScale = (SIZE / data.meta.spanM) * ex;
   const geo = new THREE.PlaneGeometry(SIZE, SIZE, N-1, N-1); geo.rotateX(-Math.PI/2);
   const pos = geo.attributes.position, colors = [];
-  const cLow = new THREE.Color(0x51663a), cHigh = new THREE.Color(0xe8ddba);
+  const cLow = new THREE.Color(0x51663a), cHigh = new THREE.Color(0xe8ddba), cSea = new THREE.Color(0x336b87);
+  const hasSea = min <= 0.05; // DEM sea areas are void -> baked as 0; colour them as water, not lowland
   for(let k = 0; k < pos.count; k++){ const i = k % N, j = Math.floor(k / N); const h = ev[j][i]; pos.setY(k, (h - min) * yScale);
-    const c = cLow.clone().lerp(cHigh, (h - min) / (max - min)); colors.push(c.r, c.g, c.b); }
+    const c = (hasSea && h <= 0.05) ? cSea.clone() : cLow.clone().lerp(cHigh, (h - min) / (max - min)); colors.push(c.r, c.g, c.b); }
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3)); geo.computeVertexNormals();
   const group = new THREE.Group();
   const surf = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0, flatShading: true }));
   surf.position.y = -0.45; group.add(surf);
+  if(hasSea){ // flat sea surface at elevation 0, just above the void (0m) cells
+    const sea = new THREE.Mesh(new THREE.PlaneGeometry(SIZE, SIZE), new THREE.MeshBasicMaterial({ color: 0x2e637f, transparent: true, opacity: 0.94 }));
+    sea.rotation.x = -Math.PI / 2; sea.position.y = (0 - min) * yScale - 0.45 + 0.09; sea.renderOrder = 1; group.add(sea);
+  }
   const wire = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ wireframe: true, vertexColors: true, transparent: true, opacity: 0.4 }));
   group.add(wire);
   scene.add(group); threeState.mesh = group;
