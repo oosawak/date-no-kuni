@@ -49,6 +49,13 @@
   .townItem input{accent-color:#d9a441;width:17px;height:17px;flex:none}
   .townItem .approxMark{font-size:10.5px;color:var(--sub);border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:auto;flex:none}
   #townClear{margin-top:10px;background:#2b2416;border:1px solid #77683f;border-radius:8px;color:var(--ink);padding:7px 12px;cursor:pointer;font-family:inherit;font-size:13px}
+  #riverList{display:grid;gap:2px;margin-top:4px}
+  .riverItem{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:14px}
+  .riverItem:hover{background:#2b2416}
+  .riverItem.on{background:#20374d;outline:1px solid #4d7fa6}
+  .riverItem input{accent-color:#5aa7e8;width:17px;height:17px;flex:none}
+  .riverItem .rlen{font-size:11px;color:var(--sub);margin-left:auto;flex:none}
+  #riverClear{margin-top:8px;background:#2b2416;border:1px solid #77683f;border-radius:8px;color:var(--ink);padding:7px 12px;cursor:pointer;font-family:inherit;font-size:13px}
   #townInfo{margin-top:12px;display:grid;gap:10px}
   .townCard{border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#2b2416}
   .townCard h3{margin:0 0 3px;font-size:15px}
@@ -124,6 +131,10 @@
     <label class="lbl">メインの川の太さ: <span id="riverVal"></span></label>
     <input type="range" id="riverWidth" min="40" max="220" step="10" value="110">
     <p class="note">川は全部同じ太さにはせず、その地域のメインの川だけを太く描きます（仙台では広瀬川、福島では阿武隈川など）。その他の川は細いままです。海のある地域では、標高データのない海域（標高0m）を青い海面として描きます。</p>
+    <label class="lbl">川と運河を選ぶ ― 選ぶと、その川が太く光ります（道と同じ仕組み。複数選択できます）</label>
+    <div id="riverList"></div>
+    <button id="riverClear" type="button">川の選択をすべて解除</button>
+    <p class="note">運河も、舟が通る「水の道」です。名前のある川と運河から、場面の中で長いものとメインの川を並べています。長さは場面の中での目安です。貞山運河は、北・中・南などの区間名をまとめて1つとして光ります。</p>
     <p class="note">範囲は少しずつ広げる予定です: 福島／置賜／仙台〜宮城南部／仙台〜宮城北部／一関〜盛岡。まずは仙台で型を作ります。</p>
   </section>
   </div>
@@ -150,6 +161,28 @@ $("#exVal").textContent = "×" + S.exDefault;
 let threeState = null;
 let opMode = "move";
 const selectedTowns = new Set();
+const selectedRivers = new Set();
+(params.get("river") || "").split(",").map(s => s.trim()).filter(Boolean).forEach(n => selectedRivers.add(n));
+// Rivers and canals are routes too ("a canal is a road"): named waterways
+// can be selected and lit, exactly like town streets. OSM splits the Teizan
+// canal into segment names (北/中/南/砂押…貞山運河); group them as one.
+function riverKey(name){ if(!name) return null; if(name.includes("貞山運河")) return "貞山運河"; return name; }
+function riverGroups(){
+  const groups = {};
+  (S.osm.waterways || []).forEach(w => { const k = riverKey(w.name); if(!k) return; (groups[k] = groups[k] || []).push(w); });
+  const mPerGrid = S.dem.meta.spanM / 127;
+  return Object.keys(groups).map(k => {
+    let len = 0, longest = null, ll = 0;
+    groups[k].forEach(w => { let l = 0; for(let i = 1; i < w.pts.length; i++) l += Math.hypot(w.pts[i][0] - w.pts[i-1][0], w.pts[i][1] - w.pts[i-1][1]); len += l; if(l > ll){ ll = l; longest = w; } });
+    return { key: k, ways: groups[k], lenM: len * mPerGrid, longest };
+  }).filter(g => g.lenM >= 500).sort((a, b) => b.lenM - a.lenM);
+}
+const RIVERS = (() => {
+  const gs = riverGroups(), mains = new Set(S.mainRivers || []);
+  const top = gs.slice(0, 16);
+  gs.forEach(g => { if(mains.has(g.key) && !top.includes(g)) top.push(g); });
+  return top;
+})();
 let gpsState = null; // {gx, gy, lat, lon} in scene grid coords, or null
 let gpsAutoSelected = false;
 function glowTexture(){
@@ -297,6 +330,22 @@ function buildTerrain(){
     }
     threeState.townVis[t.name] = vis;
   });
+  // --- Rivers/canals: selected ones glow (same pattern as town streets) ---
+  threeState.riverVis = {};
+  RIVERS.forEach(g => {
+    const vis = [];
+    g.ways.forEach(w => {
+      const glow = addRibbon(w.pts, 150 / mPerUnit, 0x2e9dff, 0.20, true); if(glow){ glow.visible = selectedRivers.has(g.key); glow.renderOrder = 4; vis.push(glow); glow.userData.isGlow = true; }
+      const core = addRibbon(w.pts, 64 / mPerUnit, 0xbfe6ff, 0.95, false); if(core){ core.visible = selectedRivers.has(g.key); core.renderOrder = 5; vis.push(core); core.userData.isGlow = true; }
+    });
+    if(g.longest){
+      const pts = g.longest.pts, mid = pts[Math.floor(pts.length / 2)], v = toXYZ(mid[0], mid[1]);
+      const label = labelSprite(THREE, g.key, false);
+      label.scale.set(38, 7.1, 1); label.position.set(v[0], v[1] + 13, v[2]);
+      label.visible = selectedRivers.has(g.key); scene.add(label); threeState.markers.push(label); vis.push(label); label.userData.isGlow = true;
+    }
+    threeState.riverVis[g.key] = vis;
+  });
   // --- GPS current-location marker (re-added on every terrain rebuild) ---
   if(gpsState){
     const v = toXYZ(gpsState.gx, gpsState.gy);
@@ -433,6 +482,30 @@ function tapSelectTown(name){
   const tc = $("#townClose");
   if(tc) tc.onclick = () => document.body.classList.remove("towns-open");
   list.addEventListener("change", () => { if(window.innerWidth <= 900) { /* keep drawer open while choosing several towns */ } });
+})();
+// ---------- Rivers (list / highlight) ----------
+function toggleRiver(key, force){
+  const on = (force !== undefined) ? force : !selectedRivers.has(key);
+  if(on) selectedRivers.add(key); else selectedRivers.delete(key);
+  document.querySelectorAll(".riverItem").forEach(el => {
+    if(el.dataset.river === key){ el.classList.toggle("on", on); const cb = el.querySelector("input"); if(cb) cb.checked = on; }
+  });
+  if(threeState && threeState.riverVis && threeState.riverVis[key]){
+    threeState.riverVis[key].forEach(m => { if(m.userData.isGlow) m.visible = on; });
+  }
+}
+(() => {
+  const list = $("#riverList"); if(!list) return;
+  if(!RIVERS.length){ list.innerHTML = '<p class="note">この地図には、名前のある川がまだ入っていません。</p>'; $("#riverClear").style.display = "none"; return; }
+  RIVERS.forEach(g => {
+    const el = document.createElement("label"); el.className = "riverItem"; el.dataset.river = g.key;
+    const lenTxt = g.lenM >= 1000 ? "約" + (g.lenM / 1000).toFixed(1) + "km" : "約" + Math.round(g.lenM) + "m";
+    el.innerHTML = '<input type="checkbox">' + g.key + '<span class="rlen">' + lenTxt + "</span>";
+    if(selectedRivers.has(g.key)){ el.classList.add("on"); el.querySelector("input").checked = true; }
+    el.querySelector("input").addEventListener("change", e => toggleRiver(g.key, e.target.checked));
+    list.appendChild(el);
+  });
+  $("#riverClear").onclick = () => { [...selectedRivers].forEach(k => toggleRiver(k, false)); };
 })();
 // ---------- Operation mode (move vs select-road) ----------
 function setMode(m){
