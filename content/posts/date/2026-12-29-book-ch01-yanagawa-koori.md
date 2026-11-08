@@ -9,7 +9,7 @@ cover: date/covers/book-ch01-yanagawa-koori.webp
 cover_alt: 第1章 梁川と桑折の表紙
 type: article
 ---
-今の伊達郡といえば、桃と伊達鶏である。
+今の伊達郡といえば、私の感覚では桃と伊達鶏である。
 
 梁川も桑折も桃の町で、桑折の桃は献上桃として知られる。伊達鶏は、福島を代表する鶏の名になった。
 
