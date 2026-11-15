@@ -162,6 +162,20 @@ def design_settings(site):
         raise ValueError('Built-in templates and theme_switcher currently require SITE_ID=sample')
     return template,switcher
 
+def cf_beacon_tag():
+    # Cloudflare Web Analytics beacon. The token is a public site identifier
+    # (it ships in the page HTML by design), kept in scripts/analytics.json.
+    try:
+        cfg=json.loads((ROOT/'scripts'/'analytics.json').read_text(encoding='utf-8'))
+        token=str(cfg.get('token','')).strip()
+    except Exception:
+        token=''
+    if not token:
+        return ''
+    if not re.fullmatch(r'[A-Za-z0-9_-]+',token):
+        raise ValueError('Invalid Cloudflare Web Analytics token in scripts/analytics.json')
+    return f"""<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{{"token": "{token}"}}'></script>"""
+
 def shell():
     site_titles={'bakery':'haru no tane bakery','town':'みどり野町','fruit':'果実日和','gourmet':'山形グルメ案内'}
     settings=yaml.safe_load((CONTENT/'sites'/f'{SITE_ID}.yml').read_text(encoding='utf-8'))
@@ -173,7 +187,7 @@ def shell():
     attrs=f'data-default="{SITE_ID}" data-root="./" data-mode="site" data-site-id="{SITE_ID}" data-portal-url="{escape(portal_url,quote=True)}"'
     attrs+=f' data-template="{template}" data-theme-switcher="{str(switcher).lower()}"'
     favicon='<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">' if SITE_ID=='sample' else ''
-    return f"""<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Markdownから生成した静的JSONサイト"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://tile.openstreetmap.org https://tile.openstreetmap.jp; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'"><title>{escape(title)}</title>{favicon}<link rel="stylesheet" href="assets/style.css"></head><body><div id="app" {attrs}><p class="loading">読み込み中…</p></div><noscript>JavaScriptを有効にしてください。</noscript><script src="assets/app.js" defer></script></body></html>"""
+    return f"""<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Markdownから生成した静的JSONサイト"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self'; img-src 'self' data: https://tile.openstreetmap.org https://tile.openstreetmap.jp; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'none'"><title>{escape(title)}</title>{favicon}<link rel="stylesheet" href="assets/style.css"></head><body><div id="app" {attrs}><p class="loading">読み込み中…</p></div><noscript>JavaScriptを有効にしてください。</noscript><script src="assets/app.js" defer></script>{cf_beacon_tag()}</body></html>"""
 
 def generate():
     if DIST.exists():shutil.rmtree(DIST)
